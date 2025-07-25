@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/utils/supabase'
+import Link from 'next/link';
 
 // Animated Background Component
 export const AnimatedBackground = () => (
@@ -397,13 +398,15 @@ export default function NegzusAuth() {
       
       <div className="text-center relative z-10 px-6">
         <div className="flex items-center justify-center space-x-3 mb-8">
-          <div className="relative">
-            <Fuel className="h-12 w-12 text-emerald-400" />
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full animate-pulse"></div>
-          </div>
-          <span className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-            Negzus
-          </span>
+          <Link href="/" className="flex items-center space-x-3 group">
+            <div className="relative">
+              <Fuel className="h-12 w-12 text-emerald-400" />
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full animate-pulse"></div>
+            </div>
+            <span className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+              Negzus
+            </span>
+          </Link>
         </div>
         
         <h1 className="text-4xl md:text-6xl font-bold mb-6">
