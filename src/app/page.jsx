@@ -20,12 +20,13 @@ import {
   Globe,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 // Smooth scroll utility function
 const smoothScrollTo = (elementId) => {
   const element = document.getElementById(elementId);
   if (element) {
-    const headerHeight = 30; // Adjust for fixed header
+    const headerHeight = 64; // Adjust for fixed header
     const elementPosition = element.getBoundingClientRect().top;
     const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
 
@@ -173,6 +174,12 @@ const Header = ({ isMenuOpen, setIsMenuOpen }) => {
                 className="text-white hover:text-emerald-400 font-medium px-3 py-2 rounded-lg hover:bg-emerald-500/10"
               >
                 Reviews
+              </NavLink>
+              <NavLink 
+                href="#cta" 
+                className="text-white hover:text-emerald-400 font-medium px-3 py-2 rounded-lg hover:bg-emerald-500/10"
+              >
+                Download
               </NavLink>
               <Link 
                 href="/login" 
@@ -751,8 +758,9 @@ const TestimonialsSection = () => {
 
 // CTA Section
 const CTASection = () => {
+  const router = useRouter();
   return (
-    <section className="py-24 relative">
+    <section id='cta' className="py-24 relative">
       <div className="absolute inset-0">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl"></div>
@@ -775,7 +783,9 @@ const CTASection = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button className="group bg-gradient-to-r from-emerald-500 to-cyan-500 text-white px-8 py-4 rounded-2xl text-lg font-bold shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 transform hover:scale-110 flex items-center">
+            <button
+              onClick={() => router.push('/login')}
+              className="group bg-gradient-to-r from-emerald-500 to-cyan-500 text-white px-8 py-4 rounded-2xl text-lg font-bold shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 transform hover:scale-110 flex items-center">
               <Smartphone className="h-5 w-5 mr-2" />
               Download Free App
               <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
