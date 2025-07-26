@@ -2,10 +2,10 @@
 
 import { AnimatedBackground } from '@/app/login/page'
 import { SuccessAnimation } from '@/app/login/page'
-import { Apple, Smartphone, Fuel, CheckCircle, AlertCircle, Download } from 'lucide-react'
+import { Apple, Smartphone, Fuel, CheckCircle, AlertCircle, Download, SquareChevronLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
-export default function DownloadSection({ onBack }) {
+export default function DownloadSection() {
     const router = useRouter();
     return (
       <div className="min-h-screen flex items-center justify-center relative">
@@ -97,9 +97,10 @@ export default function DownloadSection({ onBack }) {
               </p>
               <button 
                 onClick={() => router.push('/')}
-                className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+                className="w-full gap-2 flex justify-center items-center text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
               >
-                ← Back to Home
+                <SquareChevronLeft />
+                Back to Home
               </button>
             </div>
           </div>
