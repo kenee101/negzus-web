@@ -41,9 +41,10 @@ const FormInput = ({
   error,
   showPasswordToggle = false,
   showPassword = false,
-  onTogglePassword = () => {}
+  onTogglePassword = () => {},
+  onSubmit = () => {}
 }) => (
-  <div className="space-y-2">
+  <form className="space-y-2" onSubmit={onSubmit}>
     <div className="relative">
       <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
         <Icon className="h-5 w-5" />
@@ -71,7 +72,7 @@ const FormInput = ({
         <span>{error}</span>
       </div>
     )}
-  </div>
+  </form>
 );
 
 // Success Animation Component
@@ -157,8 +158,9 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
   };
 
   // Handle form submission
-  const handleSubmit = async () => {
-    
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // console.log('handleSubmit');
     if (!validateForm()) return;
     
     setIsLoading(true);
@@ -267,6 +269,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
                   onChange={handleInputChange('fullName')}
                   icon={User}
                   error={errors.fullName}
+                  // onSubmit={handleSubmit}
                 />
                 
                 <FormInput
@@ -276,6 +279,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
                   onChange={handleInputChange('phone')}
                   icon={Phone}
                   error={errors.phone}
+                  // onSubmit={handleSubmit}
                 />
               </>
             )}
@@ -287,6 +291,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
               onChange={handleInputChange('email')}
               icon={Mail}
               error={errors.email}
+              // onSubmit={handleSubmit}
             />
             
             <FormInput
@@ -299,6 +304,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
               showPasswordToggle={true}
               showPassword={showPassword}
               onTogglePassword={() => setShowPassword(!showPassword)}
+              onSubmit={handleSubmit}
             />
             
             {!isLogin && (
@@ -312,6 +318,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
                 showPasswordToggle={true}
                 showPassword={showConfirmPassword}
                 onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+                onSubmit={handleSubmit}
               />
             )}
             
