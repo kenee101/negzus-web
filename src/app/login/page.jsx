@@ -18,18 +18,20 @@ import {
   X,
   Loader
 } from 'lucide-react';
+import { SuccessAnimation } from '@/components/SuccessAnimation';
+import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/utils/supabase'
 import Link from 'next/link';
 
 // Animated Background Component
-const AnimatedBackground = () => (
-  <div className="absolute inset-0 overflow-hidden">
-    <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl animate-pulse"></div>
-    <div className="absolute bottom-20 right-10 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-  </div>
-);
+// export const AnimatedBackground = () => (
+//   <div className="absolute inset-0 overflow-hidden">
+//     <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl animate-pulse"></div>
+//     <div className="absolute bottom-20 right-10 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+//     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+//   </div>
+// );
 
 // Form Input Component
 const FormInput = ({ 
@@ -76,16 +78,16 @@ const FormInput = ({
 );
 
 // Success Animation Component
-export const SuccessAnimation = () => (
-  <div className="flex items-center justify-center">
-    <div className="relative">
-      <div className="w-16 h-16 bg-gradient-to-r from-emerald-500 to-green-600 rounded-full flex items-center justify-center animate-pulse">
-        <CheckCircle className="h-8 w-8 text-white" />
-      </div>
-      <div className="absolute inset-0 w-16 h-16 bg-gradient-to-r from-emerald-500 to-green-600 rounded-full animate-ping opacity-75"></div>
-    </div>
-  </div>
-);
+// export const SuccessAnimation = () => (
+//   <div className="flex items-center justify-center">
+//     <div className="relative">
+//       <div className="w-16 h-16 bg-gradient-to-r from-emerald-500 to-green-600 rounded-full flex items-center justify-center animate-pulse">
+//         <CheckCircle className="h-8 w-8 text-white" />
+//       </div>
+//       <div className="absolute inset-0 w-16 h-16 bg-gradient-to-r from-emerald-500 to-green-600 rounded-full animate-ping opacity-75"></div>
+//     </div>
+//   </div>
+// );
 
 
 // Auth Modal Component

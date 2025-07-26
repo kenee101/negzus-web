@@ -1,7 +1,7 @@
 'use client'
 
-import { AnimatedBackground } from '@/app/login/page'
-import { SuccessAnimation } from '@/app/login/page'
+import { AnimatedBackground } from '@/components/AnimatedBackground'
+import { SuccessAnimation } from '@/components/SuccessAnimation'
 import { Apple, Smartphone, Fuel, CheckCircle, AlertCircle, Download, SquareChevronLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
