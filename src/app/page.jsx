@@ -236,13 +236,13 @@ const Header = ({ isMenuOpen, setIsMenuOpen }) => {
                 >
                   Pricing
                 </NavLink>
-                <NavLink 
-                  href="/login" 
+                <Link 
+                  href="/login"
                   onClick={closeMenu}
-                  className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white px-6 py-2 rounded-full font-medium w-full text-center hover:from-emerald-400 hover:to-cyan-400"
+                  className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white px-6 py-2 rounded-full hover:shadow-lg hover:shadow-emerald-500/25 font-medium hover:from-emerald-400 hover:to-cyan-400"
                 >
                   Get Started
-                </NavLink>
+                </Link>
               </div>
             </div>
           </div>
