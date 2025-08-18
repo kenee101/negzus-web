@@ -4,7 +4,7 @@ import crypto from "crypto";
 // Verify Paystack signature
 function verifySignature(reqBody: string, signature: string | undefined) {
   const hash = crypto
-    .createHmac("sha512", process.env.NEXT_PUBLIC_PAYSTACK_SECRET_KEY!)
+    .createHmac("sha512", process.env.PAYSTACK_SECRET_KEY!)
     .update(reqBody)
     .digest("hex");
   return hash === signature;

@@ -6,7 +6,7 @@ const PAYSTACK_BASE_URL = 'https://api.paystack.co';
 const paystackAPI = axios.create({
   baseURL: PAYSTACK_BASE_URL,
   headers: {
-    'Authorization': `Bearer ${process.env.NEXT_PUBLIC_PAYSTACK_SECRET_KEY}`,
+    'Authorization': `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
     'Content-Type': 'application/json',
   },
 });
