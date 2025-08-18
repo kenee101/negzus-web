@@ -1,7 +1,7 @@
 import { PaystackService } from "@/utils/paystack";
 import { NextRequest, NextResponse } from "next/server";
 
-export default async function POST(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     const { reference } = await req.json();
 
