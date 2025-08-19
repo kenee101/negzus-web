@@ -92,6 +92,24 @@ export class PaystackService {
     }
   }
 
+  // Get balance
+  static async getBalance() {
+    try {
+      const response = await paystackAPI.get('/balance');
+      
+      return {
+        success: true,
+        data: response.data.data
+      };
+    } catch (error) {
+      console.error('Get balance error:', error.response?.data);
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to fetch balance'
+      };
+    }
+  }
+
   // List transactions with filters
   static async listTransactions(params = {}) {
     try {
