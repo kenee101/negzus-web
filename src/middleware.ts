@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const allowedOrigins = ["http://localhost:8081", "https://negzus.vercel.app"];
+const allowedOrigins = [
+  "http://192.168.1.146:8081",
+  "https://negzus.vercel.app",
+];
 
 // For development, you might want to allow localhost
-if (process.env.NODE_ENV === "development") {
-  console.log("Development mode", process.env.NODE_ENV);
-  allowedOrigins.push("http://localhost:8081"); // Default Expo Go port
-}
+// if (process.env.NODE_ENV === "development") {
+//   console.log("Development mode", process.env.NODE_ENV);
+//   allowedOrigins.push("http://localhost:8081");
+// }
 
 export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith("/api/")) {
