@@ -1,31 +1,33 @@
-import { useState } from 'react';
-import axios from 'axios';
-import PaystackPop from '@paystack/inline-js'
+"use client";
 
-const PaymentModal = ({ 
-  isOpen, 
-  onClose, 
-  amount, 
-  stationId, 
+import { useState } from "react";
+import axios from "axios";
+import PaystackPop from "@paystack/inline-js";
+
+const PaymentModal = ({
+  isOpen,
+  onClose,
+  amount,
+  stationId,
   stationName,
   customerEmail,
-  customerName 
+  customerName,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const initializePayment = async () => {
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       // Initialize transaction
-      const response = await axios.post('/api/payment/initialize', {
+      const response = await axios.post("/api/payment/initialize", {
         email: customerEmail,
         amount: amount,
         customerName: customerName,
         stationId: stationId,
-        serviceType: 'fuel_purchase'
+        serviceType: "fuel_purchase",
       });
 
       if (response.data.success) {
@@ -35,39 +37,39 @@ const PaymentModal = ({
           key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
           email: customerEmail,
           amount: amount * 100, // Convert to kobo
-          currency: 'NGN',
+          currency: "NGN",
           ref: response.data.data.reference,
-          callback: function(response) {
+          callback: function (response) {
             verifyPayment(response.reference);
           },
-          onClose: function() {
+          onClose: function () {
             setLoading(false);
-            console.log('Payment window closed');
-          }
+            console.log("Payment window closed");
+          },
         });
       }
     } catch (error) {
-      setError(error.response?.data?.message || 'Failed to initialize payment');
+      setError(error.response?.data?.message || "Failed to initialize payment");
       setLoading(false);
     }
   };
 
   const verifyPayment = async (reference) => {
     try {
-      const response = await axios.post('/api/payment/verify', {
-        reference: reference
+      const response = await axios.post("/api/payment/verify", {
+        reference: reference,
       });
 
       if (response.data.success) {
         // Payment successful
-        alert('Payment successful!');
+        alert("Payment successful!");
         onClose();
         // Redirect or update UI
       } else {
-        setError('Payment verification failed');
+        setError("Payment verification failed");
       }
     } catch (error) {
-      setError('Payment verification failed');
+      setError("Payment verification failed");
     } finally {
       setLoading(false);
     }
@@ -80,7 +82,10 @@ const PaymentModal = ({
       <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Complete Payment</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
             ✕
           </button>
         </div>
@@ -90,12 +95,10 @@ const PaymentModal = ({
             <h3 className="font-semibold">{stationName}</h3>
             <p className="text-gray-600">Fuel Purchase</p>
           </div>
-          
+
           <div className="flex justify-between items-center text-lg font-bold">
             <span>Total:</span>
-            <span className="text-emerald-600">
-              ₦{amount.toLocaleString()}
-            </span>
+            <span className="text-emerald-600">₦{amount.toLocaleString()}</span>
           </div>
         </div>
 
@@ -118,7 +121,7 @@ const PaymentModal = ({
             disabled={loading}
             className="flex-1 py-2 px-4 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
           >
-            {loading ? 'Processing...' : 'Pay Now'}
+            {loading ? "Processing..." : "Pay Now"}
           </button>
         </div>
       </div>
