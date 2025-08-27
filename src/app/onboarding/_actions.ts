@@ -92,7 +92,7 @@ export const completeOnboarding = async (formData: FormData) => {
         two_factor_enabled: user.twoFactorEnabled,
         email_verified:
           user.emailAddresses.find(
-            (email: any) => email.id === user.primaryEmailAddressId
+            (email) => email.id === user.primaryEmailAddressId
           )?.verification?.status === "verified",
         last_sign_in_at: user.lastSignInAt
           ? new Date(user.lastSignInAt).toISOString()
