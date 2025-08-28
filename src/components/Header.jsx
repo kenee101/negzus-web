@@ -4,7 +4,6 @@ import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { Fuel } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Header = ({ isMenuOpen, setIsMenuOpen }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -79,11 +78,10 @@ export const Header = ({ isMenuOpen, setIsMenuOpen }) => {
               >
                 Get Started
               </Link>
-              <ThemeToggle />
             </div>
 
+            {/* Mobile Menu */}
             <div className="flex items-center lg:hidden">
-              <ThemeToggle />
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="text-white p-2 rounded-lg hover:bg-white/10 transition-all duration-300"

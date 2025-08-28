@@ -181,7 +181,7 @@ export default function OnboardingComponent() {
             )}
 
             {/* Phone Number and Date of Birth */}
-            <div className="flex gap-x-4">
+            <div className="flex gap-y-4 md:gap-x-4 flex-col sm:flex-row">
               <div className="group flex-1">
                 <label
                   className="block text-sm font-semibold text-emerald-400 mb-2"
@@ -230,73 +230,56 @@ export default function OnboardingComponent() {
                 )}
               </div>
 
-              <div className="group flex-1">
-                {/* <label
-                  className="block text-sm font-semibold text-emerald-400 mb-2"
-                  htmlFor="dateOfBirth"
-                >
-                  Date of Birth <span className="text-red-400">*</span>
-                </label> */}
-                <div className="relative">
-                  <div className="flex w-full flex-wrap md:flex-nowrap mb-6 md:mb-0 gap-4">
-                    <DatePicker
-                      isDisabled={isSubmitting}
-                      name="dateOfBirth"
-                      // defaultValue={dateOfBirth}
-                      value={dateOfBirth}
-                      onChange={(val) => setDateOfBirth(val)}
-                      isRequired={true}
-                      variant={"underlined"}
-                      maxValue={maxDate}
-                      calendarProps={{
-                        classNames: {
-                          base: "bg-gray-950 border border-gray-700 rounded-2xl shadow-lg no-scrollbar",
-                          header:
-                            "bg-black p-2 text-white flex justify-between items-center",
-                          prevButton:
-                            "text-white hover:bg-gray-700 rounded-full p-1",
-                          nextButton:
-                            "text-white hover:bg-gray-700 rounded-full p-1",
-                          title: "font-semibold text-white",
-                          gridHeader: "font-semibold text-gray-400",
-                          gridBody: "text-gray-300",
-                          cell: "data-[selected=true]:bg-emerald-500 data-[selected=true]:text-white data-[today=true]:border-2 data-[today=true]:border-emerald-500 hover:bg-gray-700 rounded-full w-10 h-10 flex items-center justify-center",
-                          pickerWrapper: "flex px-4 py-2",
-                          pickerMonthList:
-                            "flex flex-col gap-2 items-center snap-y snap-mandatory max-h-40 overflow-y-auto no-scrollbar",
-                          pickerItem:
-                            "cursor-pointer text-sm py-2 px-3 rounded-lg text-gray-200 hover:bg-gray-700 data-[selected=true]:bg-emerald-500 data-[selected=true]:text-white",
-                          pickerYearList:
-                            "flex flex-col gap-2 items-center snap-y snap-mandatory max-h-40 overflow-y-auto no-scrollbar",
-                          pickerHighlight:
-                            "bg-emerald-500 text-white rounded-md",
-                        },
-                      }}
-                      classNames={{
-                        base: getInputClassName("dateOfBirth"),
-                      }}
-                      showMonthAndYearPickers={true}
-                      labelPlacement={"outside"}
-                      className="max-w-[284px]"
-                      label="Birth date"
-                      aria-describedby={
-                        errors.dateOfBirth ? "dateOfBirth-error" : undefined
-                      }
-                    />
-                  </div>
-                  {/* <input
-                    type="date"
-                    id="dateOfBirth"
+              <div className="group flex flex-1">
+                <div className="relative grow">
+                  <DatePicker
+                    isDisabled={isSubmitting}
                     name="dateOfBirth"
-                    required
-                    max={maxDateString}
-                    className={`${getInputClassName(
-                      "dateOfBirth"
-                    )} [color-scheme:dark]`}
+                    // defaultValue={dateOfBirth}
+                    size="sm"
+                    value={dateOfBirth}
+                    onChange={(val) => setDateOfBirth(val)}
+                    isRequired={true}
+                    variant={"underlined"}
+                    maxValue={maxDate}
+                    calendarProps={{
+                      classNames: {
+                        base: "bg-gray-950 border border-gray-700 rounded-2xl shadow-lg no-scrollbar",
+                        // header:
+                        //   "bg-black p-2 text-white flex justify-between items-center",
+                        headerWrapper:
+                          "bg-black p-2 text-white flex justify-between items-center",
+                        prevButton:
+                          "text-white hover:bg-gray-700 rounded-full p-1",
+                        nextButton:
+                          "text-white hover:bg-gray-700 rounded-full p-1",
+                        title: "font-semibold text-white",
+                        gridHeader: "font-semibold text-gray-400 bg-black",
+                        gridHeaderRow: "font-semibold rounded-full w-fit",
+                        gridBody: "text-gray-300",
+                        cell: "data-[selected=true]:bg-emerald-500 data-[selected=true]:text-white data-[today=true]:border-2 data-[today=true]:border-emerald-500 hover:bg-gray-700 rounded-full w-10 h-10 flex items-center justify-center",
+                        pickerWrapper: "flex",
+                        pickerMonthList:
+                          "flex flex-col items-center snap-y snap-mandatory max-h-40 overflow-y-auto no-scrollbar",
+                        pickerItem:
+                          " outline-none cursor-pointer text-sm rounded-lg text-gray-200 hover:bg-gray-700 data-[selected=true]:bg-emerald-500 data-[selected=true]:text-white",
+                        pickerYearList:
+                          "flex flex-col items-center snap-y snap-mandatory max-h-40 overflow-y-auto no-scrollbar",
+                        pickerHighlight: "bg-white/10 text-white rounded-md",
+                      },
+                    }}
+                    classNames={{
+                      base: `${getInputClassName("dateOfBirth")} mt-2`,
+                    }}
+                    showMonthAndYearPickers={true}
+                    labelPlacement={"outside"}
+                    className="max-w-[284px]"
+                    label="Birth date"
                     aria-describedby={
                       errors.dateOfBirth ? "dateOfBirth-error" : undefined
                     }
-                  /> */}
+                  />
+
                   {!errors.dateOfBirth && (
                     <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                   )}
@@ -761,8 +744,8 @@ export default function OnboardingComponent() {
         </div>
       </div>
 
-      {/* Hero Section */}
-      <div className="flex-1 bg-gray-950 min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-8 lg:px-16">
+      {/* Info Section */}
+      <div className="hidden flex-1 md:p-10 bg-gray-950 min-h-screen md:flex flex-col items-center justify-center relative overflow-hidden px-8 lg:px-16">
         <div className="relative z-10 text-center max-w-4xl">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-8 leading-tight">
             <span className="bg-gradient-to-r from-white via-emerald-100 to-cyan-100 bg-clip-text text-transparent">
@@ -781,8 +764,8 @@ export default function OnboardingComponent() {
           </p>
 
           {/* Feature highlights */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 max-w-3xl mx-auto">
-            <div className="flex flex-col items-center p-6 bg-gray-800/20 backdrop-blur-sm border border-gray-700/50 rounded-2xl hover:bg-gray-800/30 transition-all duration-300 group">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-16 max-w-3xl mx-auto">
+            <div className="flex flex-col items-center p-6 md:p-0 md:pb-2 lg:p-6 bg-gray-800/20 backdrop-blur-sm border border-gray-700/50 rounded-2xl hover:bg-gray-800/30 transition-all duration-300 group">
               <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <svg
                   className="w-8 h-8 text-white"
