@@ -4,7 +4,7 @@ import * as React from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { completeOnboarding } from "@/app/onboarding/_actions";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   onboardingSchema,
   type OnboardingFormData,
@@ -54,6 +54,20 @@ export default function OnboardingComponent() {
   const [showPin, setShowPin] = useState(false);
   const [showConfirmPin, setShowConfirmPin] = useState(false);
 
+  // Reset submitting state when component unmounts or errors change
+  useEffect(() => {
+    return () => {
+      setIsSubmitting(false);
+    };
+  }, []);
+
+  // Reset submitting state when errors change
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      setIsSubmitting(false);
+    }
+  }, [errors]);
+
   const validateForm = (formData: FormData): FormErrors => {
     try {
       const data: OnboardingFormData = {
@@ -88,13 +102,54 @@ export default function OnboardingComponent() {
     }
   };
 
-  const handleSubmit = async (formData: FormData) => {
+  // const handleSubmit = async (formData: FormData) => {
+  //   setErrors({});
+  //   setIsSubmitting(true);
+
+  //   try {
+  //     // Client-side validation
+  //     const validationErrors = validateForm(formData);
+
+  //     if (Object.keys(validationErrors).length > 0) {
+  //       setErrors(validationErrors);
+  //       setIsSubmitting(false);
+  //       // Scroll to first error
+  //       const firstErrorField = Object.keys(validationErrors)[0];
+  //       const element = document.getElementById(firstErrorField);
+  //       if (element) {
+  //         element.scrollIntoView({ behavior: "smooth", block: "center" });
+  //         element.focus();
+  //       }
+  //       return;
+  //     }
+
+  //     const res = await completeOnboarding(formData);
+  //     // console.log(res);
+
+  //     if (res?.message) {
+  //       await user?.reload();
+  //       router.push("/dashboard");
+  //     }
+
+  //     if (res?.error) {
+  //       setErrors({ general: res.error });
+  //     }
+  //   } catch (err) {
+  //     console.error("Onboarding error:", err);
+  //     setErrors({ general: "An unexpected error occurred. Please try again." });
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setErrors({});
     setIsSubmitting(true);
 
     try {
       // Client-side validation
-      const validationErrors = validateForm(formData);
+      const validationErrors = validateForm(new FormData(e.currentTarget));
 
       if (Object.keys(validationErrors).length > 0) {
         setErrors(validationErrors);
@@ -109,7 +164,7 @@ export default function OnboardingComponent() {
         return;
       }
 
-      const res = await completeOnboarding(formData);
+      const res = await completeOnboarding(new FormData(e.currentTarget));
       // console.log(res);
 
       if (res?.message) {
@@ -156,7 +211,7 @@ export default function OnboardingComponent() {
             </p>
           </div>
 
-          <form action={handleSubmit} className="space-y-6" noValidate>
+          <form onSubmit={handleFormSubmit} className="space-y-6" noValidate>
             {/* General Error */}
             {errors.general && (
               <div className="p-4 bg-red-900/20 border border-red-700/50 rounded-xl">
@@ -731,7 +786,9 @@ export default function OnboardingComponent() {
                 </div>
               </button>
             ) : (
-              <Spinner color="success" size="md" />
+              <div className="w-full p-4 flex items-center justify-center">
+                <Spinner color="success" size="md" />
+              </div>
             )}
           </form>
         </div>
