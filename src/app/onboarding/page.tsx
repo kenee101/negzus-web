@@ -43,7 +43,7 @@ export default function OnboardingComponent() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState<DateValue | null>(null);
   const [gender, setGender] = useState<"male" | "female" | "prefer-not-to-say">(
-    "prefer-not-to-say"
+    "male"
   );
   const [occupation, setOccupation] = useState("");
   const [address, setAddress] = useState("");
@@ -719,22 +719,20 @@ export default function OnboardingComponent() {
             </div>
 
             {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-4 px-6 bg-gradient-to-r from-emerald-900 to-cyan-900 text-white font-semibold rounded-xl shadow-lg hover:shadow-emerald-500/25 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none group"
-            >
-              <span className="flex items-center justify-center">
-                {isSubmitting ? (
-                  <Spinner color="success" size="sm" />
-                ) : (
-                  <div className="flex items-center justify-center">
-                    <p>Submit</p>
-                    <ArrowRight className="ml-2" />
-                  </div>
-                )}
-              </span>
-            </button>
+            {!isSubmitting ? (
+              <button
+                type="submit"
+                // disabled={isSubmitting}
+                className="w-full py-4 px-6 bg-gradient-to-r from-emerald-900 to-cyan-900 text-white font-semibold rounded-xl shadow-lg hover:shadow-emerald-500/25 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none group"
+              >
+                <div className="flex items-center justify-center">
+                  <p>Submit</p>
+                  <ArrowRight className="ml-2" />
+                </div>
+              </button>
+            ) : (
+              <Spinner color="success" size="md" />
+            )}
           </form>
         </div>
       </div>

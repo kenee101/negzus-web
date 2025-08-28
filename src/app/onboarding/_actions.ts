@@ -73,6 +73,7 @@ export const completeOnboarding = async (formData: FormData) => {
     const supabase = createClerkSupabaseClient(getToken);
     const { error: supabaseError } = await supabase.from("clerk_users").upsert(
       {
+        id: userId,
         username: user.username,
         first_name: user.firstName,
         last_name: user.lastName,
@@ -105,12 +106,14 @@ export const completeOnboarding = async (formData: FormData) => {
           ? new Date(user.lastActiveAt).toISOString()
           : null,
       },
-      { onConflict: "user_id" }
+      { onConflict: "id" }
     );
 
     if (supabaseError) {
       console.error("Supabase error:", supabaseError);
-      return { error: "Failed to save data. Please try again." };
+      return {
+        error: `Failed to save data. Please try again.`,
+      };
     }
 
     // Update Clerk user metadata
