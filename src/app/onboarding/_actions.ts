@@ -5,7 +5,7 @@ import { createClerkSupabaseClient } from "@/utils/supabase";
 import bcrypt from "bcryptjs";
 import {
   onboardingSchema,
-  type OnboardingFormData,
+  // type OnboardingFormData,
 } from "@/lib/validations/onboarding";
 import { z } from "zod";
 

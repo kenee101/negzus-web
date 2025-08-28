@@ -47,7 +47,7 @@ export const onboardingSchema = z
         { message: "Please enter a valid date of birth." }
       ),
 
-    gender: z.enum(["male", "female", "non-binary", "prefer-not-to-say"], {
+    gender: z.enum(["male", "female", "prefer-not-to-say"], {
       message: "Please select a gender.",
     }),
 

@@ -62,7 +62,6 @@ export default function OnboardingComponent() {
         gender: formData.get("gender") as
           | "male"
           | "female"
-          | "non-binary"
           | "prefer-not-to-say",
         occupation: formData.get("occupation") as string,
         address: formData.get("address") as string,
