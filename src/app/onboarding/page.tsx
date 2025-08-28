@@ -11,14 +11,14 @@ import {
 } from "@/lib/validations/onboarding";
 import { z } from "zod";
 import { Eye, EyeOff } from "lucide-react";
-import { DatePicker } from "@heroui/react";
+import { DatePicker, Spinner } from "@heroui/react";
 import {
   // parseDate,
   getLocalTimeZone,
   today,
   DateValue,
 } from "@internationalized/date";
-import Spinner from "@/components/Spinner";
+// import Spinner from "@/components/Spinner";
 import { ArrowRight } from "lucide-react";
 
 interface FormErrors {
@@ -42,9 +42,9 @@ export default function OnboardingComponent() {
   const router = useRouter();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState<DateValue | null>(null);
-  const [gender, setGender] = useState<
-    "male" | "female" | "non-binary" | "prefer-not-to-say"
-  >("prefer-not-to-say");
+  const [gender, setGender] = useState<"male" | "female" | "prefer-not-to-say">(
+    "prefer-not-to-say"
+  );
   const [occupation, setOccupation] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
@@ -325,7 +325,6 @@ export default function OnboardingComponent() {
                         e.target.value as
                           | "male"
                           | "female"
-                          | "non-binary"
                           | "prefer-not-to-say"
                       )
                     }
@@ -350,9 +349,6 @@ export default function OnboardingComponent() {
                     </option>
                     <option value="female" className="bg-black">
                       Female
-                    </option>
-                    <option value="non-binary" className="bg-black">
-                      Non-binary
                     </option>
                     <option value="prefer-not-to-say" className="bg-black">
                       Prefer not to say
@@ -731,7 +727,7 @@ export default function OnboardingComponent() {
             >
               <span className="flex items-center justify-center">
                 {isSubmitting ? (
-                  <Spinner />
+                  <Spinner color="success" size="sm" />
                 ) : (
                   <div className="flex items-center justify-center">
                     <p>Submit</p>

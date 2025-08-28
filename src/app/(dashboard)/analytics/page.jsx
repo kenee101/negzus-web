@@ -26,7 +26,7 @@ import {
   Calendar,
   Filter,
 } from "lucide-react";
-import { Spinner, Card, CardBody, Select, SelectItem } from "@heroui/react";
+import { Card, CardBody, Select, SelectItem } from "@heroui/react";
 
 const Analytics = () => {
   const [timeRange, setTimeRange] = useState("7d");

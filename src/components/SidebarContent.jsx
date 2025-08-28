@@ -84,7 +84,7 @@ export const SidebarContent = ({
                   collapsible ? "hidden lg:group-hover:block" : ""
                 }`}
               >
-                <p className="text-sm font-semibold text-gray-900">
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   {user?.firstName}
                 </p>
               </div>

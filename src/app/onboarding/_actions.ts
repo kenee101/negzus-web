@@ -105,7 +105,7 @@ export const completeOnboarding = async (formData: FormData) => {
           ? new Date(user.lastActiveAt).toISOString()
           : null,
       },
-      { onConflict: "id" }
+      { onConflict: "user_id" }
     );
 
     if (supabaseError) {

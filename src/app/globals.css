@@ -4,17 +4,17 @@
 @source '../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
 @custom-variant dark (&:is(.dark *));
 
-:root {
-  font-display: swap;
-}
-
 /* @tailwind base;
 @tailwind components;
 @tailwind utilities; */
 /* @config "../../tailwind.config.js"; */
 
+:root {
+  font-display: swap;
+}
+
 /* Base layer for consistent theming */
-/* @layer base {
+@layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
@@ -59,7 +59,7 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 142 70% 45%;
   }
-} */
+}
 
 /* Ensure smooth transitions between themes */
 /* @layer base {
@@ -70,7 +70,8 @@
   body {
     @apply bg-background text-foreground;
     transition: background-color 0.3s ease, color 0.3s ease;
-  } */
+  }
+} */
 
 /* Fix for HeroUI components */
 /* [data-theme="light"] {
@@ -80,7 +81,7 @@
   [data-theme="dark"] {
     color-scheme: dark;
   }
-} */
+}
 
 /* Custom utilities for your onboarding form */
 /* @layer utilities {
