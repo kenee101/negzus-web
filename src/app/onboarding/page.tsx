@@ -196,7 +196,7 @@ export default function OnboardingComponent() {
   };
 
   return (
-    <div className="min-h-screen flex overflow-y-scroll no-scrollbar overflow-hidden">
+    <div className="min-h-screen bg-black flex overflow-y-scroll no-scrollbar overflow-hidden">
       {/* Form Section */}
       <div className="flex-1 min-h-screen flex flex-col justify-center p-8 lg:p-4 lg:py-16 relative">
         <div className="relative z-10 max-w-md mx-auto w-full">

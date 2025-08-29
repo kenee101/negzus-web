@@ -39,7 +39,7 @@ export const SidebarContent = ({
             className="-m-2.5 p-2.5 hover:bg-gray-100 rounded-full cursor-pointer"
             onClick={() => setSidebarOpen(false)}
           >
-            <XIcon className="h-6 w-6 text-black" />
+            <XIcon className="h-6 w-6 text-black dark:text-gray-100" />
           </button>
         ) : null}
       </div>

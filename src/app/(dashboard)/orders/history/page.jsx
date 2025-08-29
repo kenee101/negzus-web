@@ -25,7 +25,319 @@ import {
   Input,
   Button,
   Chip,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  useDisclosure,
 } from "@heroui/react";
+
+// Order Card Component
+const OrderCard = ({
+  order,
+  onViewDetails,
+  getStatusIcon,
+  getStatusColor,
+  formatCurrency,
+  getRatingStars,
+}) => {
+  const StatusIcon = getStatusIcon(order.status);
+
+  return (
+    <Card key={order.id} className="hover:shadow-md transition-shadow">
+      <CardBody>
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {order.id}
+              </h3>
+              <div
+                className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                  order.status
+                )}`}
+              >
+                <StatusIcon className="w-4 h-4 inline mr-1" />
+                {order.status.toUpperCase()}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+              <div>
+                <p className="text-sm mb-2 text-gray-600 dark:text-gray-100">
+                  Fuel Type & Quantity
+                </p>
+                <p className="font-medium text-gray-500">{order.fuelType}</p>
+                <p className="text-sm text-gray-400">{order.quantity} Liters</p>
+              </div>
+              <div>
+                <p className="text-sm mb-2 text-gray-600 dark:text-gray-100">
+                  Station
+                </p>
+                <p className="font-medium text-gray-500">{order.station}</p>
+              </div>
+              <div>
+                <p className="text-sm mb-2 text-gray-600 dark:text-gray-100">
+                  Order Date
+                </p>
+                <p className="font-medium text-gray-500">
+                  {order.orderDate.toLocaleDateString()}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {order.orderDate.toLocaleTimeString()}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm mb-2 text-gray-600 dark:text-gray-100">
+                  Total Amount
+                </p>
+                <p className="font-semibold text-lg text-gray-500">
+                  {formatCurrency(order.totalAmount)}
+                </p>
+              </div>
+            </div>
+
+            {order.status === "delivered" && order.rating && (
+              <div className="flex items-center mb-3">
+                <span className="text-sm text-gray-600 dark:text-gray-100 mr-2">
+                  Your rating:
+                </span>
+                {getRatingStars(order.rating)}
+              </div>
+            )}
+
+            <div className="flex space-x-3 justify-center">
+              <Button
+                onPress={() => onViewDetails(order)}
+                startContent={<Eye className="w-4 h-4" />}
+                variant="flat"
+                color="success"
+                className="flex-1 outline-none"
+              >
+                View Details
+              </Button>
+            </div>
+          </div>
+        </div>
+      </CardBody>
+    </Card>
+  );
+};
+
+// Order Details Modal Component
+const OrderDetailsModal = ({
+  isOpen,
+  onClose,
+  order,
+  getStatusColor,
+  formatCurrency,
+  getRatingStars,
+}) => {
+  if (!order) return null;
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onClose}
+      size="2xl"
+      classNames={{
+        wrapper: "overflow-y-auto no-scrollbar",
+      }}
+    >
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className="flex flex-col gap-1">
+              <h2 className="text-xl font-bold">Order Details</h2>
+              <p className="text-sm text-gray-500 font-normal">
+                {order.id} • {order.orderDate.toLocaleDateString()}
+              </p>
+            </ModalHeader>
+
+            <ModalBody className="max-h-[70vh] overflow-y-auto no-scrollbar">
+              <div className="space-y-6">
+                {/* Order Status & Basic Info */}
+                <Card>
+                  <CardBody>
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                          {order.id}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Ordered on {order.orderDate.toLocaleDateString()} at{" "}
+                          {order.orderDate.toLocaleTimeString()}
+                        </p>
+                      </div>
+                      <div
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          order.status
+                        )}`}
+                      >
+                        {order.status.toUpperCase()}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="font-medium text-gray-700 dark:text-gray-100">
+                          Fuel Type
+                        </h4>
+                        <p className="text-gray-500">{order.fuelType}</p>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-700 dark:text-gray-100">
+                          Quantity
+                        </h4>
+                        <p className="text-gray-500">{order.quantity} Liters</p>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-700 dark:text-gray-100">
+                          Total Amount
+                        </h4>
+                        <p className="text-gray-500 font-semibold">
+                          {formatCurrency(order.totalAmount)}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-700 dark:text-gray-100">
+                          Payment Method
+                        </h4>
+                        <p className="text-gray-500">{order.paymentMethod}</p>
+                      </div>
+                    </div>
+                  </CardBody>
+                </Card>
+
+                {/* Station & Delivery Info */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card>
+                    <CardBody>
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
+                        <Fuel className="w-4 h-4 mr-2" />
+                        Station Information
+                      </h4>
+                      <p className="text-gray-500 font-medium">
+                        {order.station}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {order.stationAddress}
+                      </p>
+                    </CardBody>
+                  </Card>
+
+                  <Card>
+                    <CardBody>
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
+                        <MapPin className="w-4 h-4 mr-2" />
+                        Delivery Address
+                      </h4>
+                      <p className="text-gray-500">{order.deliveryAddress}</p>
+                    </CardBody>
+                  </Card>
+                </div>
+
+                {/* Driver Info (if delivered) */}
+                {order.status === "delivered" && order.driverName && (
+                  <Card>
+                    <CardBody>
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                        Driver Information
+                      </h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-500">Driver Name</p>
+                          <p className="text-gray-90 dark:text-gray-1000">
+                            {order.driverName}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">
+                            Vehicle Number
+                          </p>
+                          <p className="text-gray-900 dark:text-gray-100">
+                            {order.vehicleNumber}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Delivered At</p>
+                          <p className="text-gray-900 dark:text-gray-100">
+                            {order.deliveryDate.toLocaleDateString()} at{" "}
+                            {order.deliveryDate.toLocaleTimeString()}
+                          </p>
+                        </div>
+                        {order.rating && (
+                          <div>
+                            <p className="text-sm text-gray-500">Your Rating</p>
+                            <div className="flex items-center">
+                              {getRatingStars(order.rating)}
+                              <span className="ml-2 text-sm text-gray-600 dark:text-gray-100">
+                                ({order.rating}/5)
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </CardBody>
+                  </Card>
+                )}
+
+                {/* Cancellation Info */}
+                {order.status === "cancelled" && (
+                  <Card className="">
+                    <CardBody>
+                      <h4 className="font-semibold text-red-500 mb-1">
+                        Cancellation Details
+                      </h4>
+                      <p className="text-sm text-red-500">
+                        Reason: {order.cancelReason}
+                      </p>
+                      <p className="text-sm text-red-500">
+                        Cancelled on: {order.cancelledDate.toLocaleDateString()}{" "}
+                        at {order.cancelledDate.toLocaleTimeString()}
+                      </p>
+                      {order.refundStatus && (
+                        <p className="text-sm text-red-500">
+                          Refund Status: {order.refundStatus}
+                        </p>
+                      )}
+                    </CardBody>
+                  </Card>
+                )}
+              </div>
+            </ModalBody>
+
+            <ModalFooter>
+              <div className="flex space-x-3 w-full">
+                <Button
+                  variant="flat"
+                  color="success"
+                  onPress={onClose}
+                  startContent={<Receipt className="w-4 h-4" />}
+                  className="flex-1"
+                >
+                  Download Receipt
+                </Button>
+                {order.status === "delivered" && (
+                  <Button
+                    variant="bordered"
+                    color="success"
+                    onPress={onClose}
+                    startContent={<RotateCcw className="w-4 h-4" />}
+                    className="flex-1"
+                  >
+                    Reorder
+                  </Button>
+                )}
+              </div>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
+  );
+};
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
@@ -270,160 +582,16 @@ const OrderHistory = () => {
   const endIndex = startIndex + ordersPerPage;
   const currentOrders = filteredOrders.slice(startIndex, endIndex);
 
-  const OrderDetailsModal = ({ order, onClose }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-screen overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Order Details</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <XCircle className="w-6 h-6" />
-            </button>
-          </div>
+  const {
+    isOpen: isOrderOpen,
+    onOpen: onOrderOpen,
+    onOpenChange: onOrderChange,
+  } = useDisclosure();
 
-          <div className="space-y-6">
-            {/* Order Info */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {order.id}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {order.orderDate.toLocaleDateString()} at{" "}
-                    {order.orderDate.toLocaleTimeString()}
-                  </p>
-                </div>
-                <div
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                    order.status
-                  )}`}
-                >
-                  {order.status.toUpperCase()}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-medium text-gray-700">Fuel Type</h4>
-                  <p className="text-gray-900">{order.fuelType}</p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-700">Quantity</h4>
-                  <p className="text-gray-900">{order.quantity} Liters</p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-700">Total Amount</h4>
-                  <p className="text-gray-900 font-semibold">
-                    {formatCurrency(order.totalAmount)}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-700">Payment Method</h4>
-                  <p className="text-gray-900">{order.paymentMethod}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Station & Delivery Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-white border border-gray-200 p-4 rounded-lg">
-                <h4 className="font-semibold text-gray-900 mb-2 flex items-center">
-                  <Fuel className="w-4 h-4 mr-2" />
-                  Station
-                </h4>
-                <p className="text-gray-900">{order.station}</p>
-                <p className="text-sm text-gray-600">{order.stationAddress}</p>
-              </div>
-
-              <div className="bg-white border border-gray-200 p-4 rounded-lg">
-                <h4 className="font-semibold text-gray-900 mb-2 flex items-center">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Delivery Address
-                </h4>
-                <p className="text-gray-900">{order.deliveryAddress}</p>
-              </div>
-            </div>
-
-            {/* Driver Info (if delivered) */}
-            {order.status === "delivered" && order.driverName && (
-              <div className="bg-white border border-gray-200 p-4 rounded-lg">
-                <h4 className="font-semibold text-gray-900 mb-2">
-                  Driver Information
-                </h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-600">Driver Name</p>
-                    <p className="text-gray-900">{order.driverName}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Vehicle Number</p>
-                    <p className="text-gray-900">{order.vehicleNumber}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Delivered At</p>
-                    <p className="text-gray-900">
-                      {order.deliveryDate.toLocaleDateString()} at{" "}
-                      {order.deliveryDate.toLocaleTimeString()}
-                    </p>
-                  </div>
-                  {order.rating && (
-                    <div>
-                      <p className="text-sm text-gray-600">Your Rating</p>
-                      <div className="flex items-center">
-                        {getRatingStars(order.rating)}
-                        <span className="ml-2 text-sm text-gray-600">
-                          ({order.rating}/5)
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Cancellation Info */}
-            {order.status === "cancelled" && (
-              <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
-                <h4 className="font-semibold text-red-800 mb-2">
-                  Cancellation Details
-                </h4>
-                <p className="text-sm text-red-700">
-                  Reason: {order.cancelReason}
-                </p>
-                <p className="text-sm text-red-700">
-                  Cancelled on: {order.cancelledDate.toLocaleDateString()} at{" "}
-                  {order.cancelledDate.toLocaleTimeString()}
-                </p>
-                {order.refundStatus && (
-                  <p className="text-sm text-red-700">
-                    Refund Status: {order.refundStatus}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {/* Action Buttons */}
-            <div className="flex space-x-3 pt-4 border-t">
-              <button className="flex-1 bg-violet-600 text-white py-2 px-4 rounded-lg hover:bg-violet-700 transition-colors flex items-center justify-center">
-                <Receipt className="w-4 h-4 mr-2" />
-                Download Receipt
-              </button>
-              {order.status === "delivered" && (
-                <button className="flex-1 border border-violet-600 text-violet-600 py-2 px-4 rounded-lg hover:bg-violet-50 transition-colors flex items-center justify-center">
-                  <RotateCcw className="w-4 h-4 mr-2" />
-                  Reorder
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const handleViewDetails = (order) => {
+    setSelectedOrder(order);
+    onOrderOpen();
+  };
 
   if (isLoading) {
     return (
@@ -524,136 +692,27 @@ const OrderHistory = () => {
 
         {/* Orders List */}
         <div className="space-y-4 mb-6">
-          {currentOrders.map((order) => {
-            const StatusIcon = getStatusIcon(order.status);
-
-            return (
-              <Card key={order.id}>
-                <CardBody>
-                  {/* <div
-                    key={order.id}
-                    className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200"
-                  > */}
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                          {order.id}
-                        </h3>
-                        <div
-                          className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                            order.status
-                          )}`}
-                        >
-                          <StatusIcon className="w-4 h-4 inline mr-1" />
-                          {order.status.toUpperCase()}
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                        <div>
-                          <p className="text-sm mb-2 text-gray-600 dark:text-gray-100">
-                            Fuel Type & Quantity
-                          </p>
-                          <p className="font-medium text-gray-500">
-                            {order.fuelType}
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            {order.quantity} Liters
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm mb-2 text-gray-600 dark:text-gray-100">
-                            Station
-                          </p>
-                          <p className="font-medium text-gray-500">
-                            {order.station}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm mb-2 text-gray-600 dark:text-gray-100">
-                            Order Date
-                          </p>
-                          <p className="font-medium text-gray-500">
-                            {order.orderDate.toLocaleDateString()}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            {order.orderDate.toLocaleTimeString()}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm mb-2 text-gray-600 dark:text-gray-100">
-                            Total Amount
-                          </p>
-                          <p className="font-semibold text-lg text-gray-500">
-                            {formatCurrency(order.totalAmount)}
-                          </p>
-                        </div>
-                      </div>
-
-                      {order.status === "delivered" && order.rating && (
-                        <div className="flex items-center mb-3">
-                          <span className="text-sm text-gray-600 dark:text-gray-100 mr-2">
-                            Your rating:
-                          </span>
-                          {getRatingStars(order.rating)}
-                        </div>
-                      )}
-
-                      <div className="flex space-x-3 justify-center">
-                        <div className="flex items-center">
-                          <Button
-                            onPress={() => setSelectedOrder(order)}
-                            startContent={<Eye className="w-4 h-4" />}
-                            variant="flat"
-                            color="success"
-                            className="flex-1"
-                          >
-                            View Details
-                          </Button>
-                        </div>
-                        {order.status === "delivered" && (
-                          <div className="flex items-center">
-                            <Button
-                              onPress={() => setSelectedOrder(order)}
-                              startContent={<RotateCcw className="w-4 h-4" />}
-                              variant="flat"
-                              color="success"
-                              className="flex-1"
-                            >
-                              Reorder
-                            </Button>
-                          </div>
-                        )}
-                        <div className="flex items-center">
-                          <Button
-                            onPress={() => setSelectedOrder(order)}
-                            startContent={<Receipt className="w-4 h-4" />}
-                            variant="flat"
-                            color="success"
-                            className="flex-1"
-                          >
-                            Download Receipt
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {/* </div> */}
-                </CardBody>
-              </Card>
-            );
-          })}
+          {currentOrders.map((order) => (
+            <OrderCard
+              key={order.id}
+              order={order}
+              onViewDetails={handleViewDetails}
+              getStatusIcon={getStatusIcon}
+              getStatusColor={getStatusColor}
+              formatCurrency={formatCurrency}
+              getRatingStars={getRatingStars}
+            />
+          ))}
         </div>
 
         {/* Empty State */}
         {filteredOrders.length === 0 && (
           <div className="text-center py-12">
-            <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <Calendar className="w-16 h-16 text-gray-500 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               No orders found
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-500 mb-4">
               Try adjusting your search or filter criteria
             </p>
             <button
@@ -662,7 +721,7 @@ const OrderHistory = () => {
                 setStatusFilter("all");
                 setDateFilter("all");
               }}
-              className="text-violet-600 hover:text-violet-800 font-medium"
+              className="text-black dark:text-white hover:text-green-800 dark:hover:text-green-600 font-medium"
             >
               Clear all filters
             </button>
@@ -675,7 +734,7 @@ const OrderHistory = () => {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="px-3 py-2 border text-black dark:text-white border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
             >
               Previous
             </button>
@@ -686,8 +745,8 @@ const OrderHistory = () => {
                 onClick={() => setCurrentPage(page)}
                 className={`px-3 py-2 rounded-lg ${
                   currentPage === page
-                    ? "bg-violet-600 text-white"
-                    : "border border-gray-300 hover:bg-gray-50"
+                    ? "bg-green-700 text-white dark:text-black"
+                    : "border text-black dark:text-white border-gray-400 hover:bg-gray-200"
                 }`}
               >
                 {page}
@@ -699,7 +758,7 @@ const OrderHistory = () => {
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="px-3 py-2 text-black dark:text-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
             >
               Next
             </button>
@@ -707,12 +766,14 @@ const OrderHistory = () => {
         )}
 
         {/* Order Details Modal */}
-        {selectedOrder && (
-          <OrderDetailsModal
-            order={selectedOrder}
-            onClose={() => setSelectedOrder(null)}
-          />
-        )}
+        <OrderDetailsModal
+          isOpen={isOrderOpen}
+          onClose={onOrderChange}
+          order={selectedOrder}
+          getStatusColor={getStatusColor}
+          formatCurrency={formatCurrency}
+          getRatingStars={getRatingStars}
+        />
       </div>
     </div>
   );

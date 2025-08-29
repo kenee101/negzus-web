@@ -231,7 +231,7 @@ export default function Wallet() {
                   />
 
                   <div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">
+                    <p className="text-sm font-medium text-black dark:text-white mb-2">
                       Quick amounts
                     </p>
                     <div className="grid grid-cols-3 gap-2">
@@ -240,7 +240,7 @@ export default function Wallet() {
                           key={quickAmount}
                           size="sm"
                           variant="bordered"
-                          onClick={() => setAmount(quickAmount.toString())}
+                          onPress={() => setAmount(quickAmount.toString())}
                         >
                           ₦{quickAmount.toLocaleString()}
                         </Button>
@@ -248,8 +248,8 @@ export default function Wallet() {
                     </div>
                   </div>
 
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-sm text-blue-800">
+                  <div className="bg-white/10 p-3 rounded-lg">
+                    <p className="text-sm dark:text-white">
                       <strong>Payment methods:</strong> Bank transfer, Debit
                       card, USSD
                     </p>
@@ -260,7 +260,7 @@ export default function Wallet() {
                 <Button variant="bordered" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button color="primary" onPress={onClose}>
+                <Button color="success" onPress={onClose}>
                   Continue to Payment
                 </Button>
               </ModalFooter>
@@ -303,8 +303,8 @@ export default function Wallet() {
                     readOnly
                   />
 
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-sm text-gray-600">
+                  <div className="bg-white/10 p-3 rounded-lg">
+                    <p className="text-sm dark:text-white">
                       • Processing time: 1-2 business days
                       <br />
                       • Minimum withdrawal: ₦1,000
@@ -317,7 +317,7 @@ export default function Wallet() {
                 <Button variant="bordered" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button color="primary" onPress={onClose}>
+                <Button color="success" onPress={onClose}>
                   Withdraw
                 </Button>
               </ModalFooter>

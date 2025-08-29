@@ -36,7 +36,11 @@ export default function NegzusAuth() {
   }, [isLoaded, isSignedIn]);
 
   if (user) {
-    return <Spinner size="lg" color="success" />;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner size="lg" color="success" />;
+      </div>
+    );
   }
 
   // useEffect(() => {

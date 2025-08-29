@@ -422,7 +422,7 @@ export default function Settings() {
       <Card>
         <CardBody>
           <div className="mb-6">
-            <h2 className="text-lg font-medium text-gray-100 mb-2">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
               Danger Zone
             </h2>
             <p className="text-sm text-gray-500">

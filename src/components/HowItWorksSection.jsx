@@ -6,7 +6,7 @@ export const HowItWorksSection = () => {
       step: "01",
       title: "Open App",
       description:
-        "Launch FuelFinder and allow location access for personalized results",
+        "Launch Negzus and allow location access for personalized results",
       icon: <Smartphone className="h-12 w-12" />,
     },
     {
