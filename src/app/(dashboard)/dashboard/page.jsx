@@ -106,7 +106,7 @@ export default function Dashboard() {
       },
       placement: "top-right",
       title: "Payment successful!",
-      description: `Your order has been placed successfully.`,
+      description: `Your order ${response.reference} has been placed successfully.`,
       radius: "lg",
       duration: 10000,
       pauseonhover: "true",
