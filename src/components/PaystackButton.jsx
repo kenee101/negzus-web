@@ -39,7 +39,7 @@ export default function PaystackButton({
       transaction = paystack.newTransaction({
         key: publicKey,
         email,
-        amount: amount * 100, // Convert to kobo
+        amount,
         ref: reference,
         currency: "NGN",
         onSuccess: handleSuccess,
