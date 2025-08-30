@@ -38,7 +38,7 @@ export default function NegzusAuth() {
   if (user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Spinner size="lg" color="success" />;
+        <Spinner size="lg" color="success" />
       </div>
     );
   }

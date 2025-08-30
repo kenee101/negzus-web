@@ -29,7 +29,8 @@
     ".next/types/**/*.ts",
     "src/app/page.jsx",
     "src/app/layout.tsx",
-    "tailwind.config.js"
+    "tailwind.config.js",
+    "src/app/(dashboard)/subscriptions"
   ],
   "exclude": ["node_modules"]
 }

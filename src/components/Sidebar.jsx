@@ -1,5 +1,5 @@
-// components/Sidebar.js
 "use client";
+
 import { Fragment } from "react";
 import { Dialog, DialogPanel, Transition } from "@headlessui/react";
 import {
@@ -9,6 +9,7 @@ import {
   FileTextIcon,
   WalletIcon,
   CreditCardIcon,
+  PackageIcon,
   SettingsIcon,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -28,6 +29,11 @@ const navigation = [
     name: "Transactions",
     href: "/transactions",
     icon: CreditCardIcon,
+  },
+  {
+    name: "Subscriptions",
+    href: "/subscriptions",
+    icon: PackageIcon,
   },
   { name: "Settings", href: "/settings", icon: SettingsIcon },
 ];

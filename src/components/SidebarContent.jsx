@@ -36,7 +36,7 @@ export const SidebarContent = ({
         {showClose ? (
           <button
             type="button"
-            className="-m-2.5 p-2.5 hover:bg-gray-100 rounded-full cursor-pointer"
+            className="-m-2.5 p-2.5 hover:bg-gray-100 dark:hover:bg-gray-500 rounded-full cursor-pointer"
             onClick={() => setSidebarOpen(false)}
           >
             <XIcon className="h-6 w-6 text-black dark:text-gray-100" />

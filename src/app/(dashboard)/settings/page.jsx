@@ -446,7 +446,7 @@ export default function Settings() {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="text-gray-100">
+              <ModalHeader className="text-gray-900 dark:text-gray-100">
                 Delete Account
               </ModalHeader>
               <ModalBody>

@@ -67,77 +67,6 @@ export const UserProvider = ({ children }) => {
     loadUsers();
   }, [user, userLoaded, sessionLoaded, session]);
 
-  async function createUser(e) {
-    // e.preventDefault();
-
-    // if (!e.target.username.trim()) {
-    //   setError("User name is required");
-    //   return;
-    // }
-
-    if (!session) {
-      setError("No active session");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      if (!client) {
-        throw new Error("Failed to create Supabase client");
-      }
-
-      // UPDATED: Get token without template parameter
-      const token = await session.getToken();
-      console.log("Creating task with token:", token ? "Present" : "Missing");
-
-      const { data, error } = await client
-        .from("clerk_users")
-        .insert({
-          username: user.username.trim(),
-          first_name: user.first_name.trim(),
-          last_name: user.last_name.trim(),
-          profile_image_url: user.profile_image_url,
-          password_enabled: user.password_enabled,
-          two_factor_enabled: user.two_factor_enabled,
-          email_address: user.email_addresses[0]?.email_address,
-          email_verified:
-            user.email_addresses[0]?.verification?.status === "verified",
-          phone_numbers: user.phone_numbers,
-          password_last_updated_at: user.password_last_updated_at,
-          last_sign_in_at: user.last_sign_in_at,
-          banned: user.banned,
-          locked: user.locked,
-          verification_attempts_remaining: user.verification_attempts_remaining,
-          created_at: user.created_at,
-          updated_at: user.updated_at,
-          last_active_at: user.last_active_at,
-        })
-        .select();
-
-      if (error) {
-        console.error("Insert error:", error);
-        setError(`Failed to create user: ${error.message}`);
-      } else {
-        console.log("User created:", data);
-        // Update state directly instead of reloading
-        if (data && data.length > 0) {
-          setUsers((prev) => [...prev, ...data]);
-        }
-      }
-    } catch (err) {
-      console.error("Create user error:", err);
-      setError(
-        `Failed to create user: ${
-          err instanceof Error ? err.message : "Unknown error"
-        }`
-      );
-    }
-
-    setLoading(false);
-  }
-
   return (
     <UserContext.Provider
       value={{
@@ -146,7 +75,6 @@ export const UserProvider = ({ children }) => {
         sessionLoaded,
         client,
         users,
-        createUser,
         error,
       }}
     >
