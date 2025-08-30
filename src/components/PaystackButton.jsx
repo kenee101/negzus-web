@@ -57,7 +57,7 @@ export default function PaystackButton({
       // Auto-cancel after 10 minutes of inactivity (Paystack's default is 30 minutes)
       const timeLimit = 10 * 60; // 10 minutes in seconds
       let timeElapsed = 0;
-      const redirectURL = "http://localhost:3000/dashboard";
+      const redirectURL = "https://negzus.vercel.app/dashboard";
       // console.log("transaction", transaction);
 
       redirectTimer = setInterval(() => {
