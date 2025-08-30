@@ -121,41 +121,38 @@ const SubscriptionPlans = () => {
   };
 
   const handleSubscribe = async (plan) => {
-    if (plan.price === 0) {
-      // Handle free plan signup
-      console.log("Signing up for free plan");
-      return;
-    }
-
-    setSelectedPlan(plan);
-    setIsLoading(true);
-
-    // Initialize Paystack
-    try {
-      const handler = window.PaystackPop.setup({
-        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY, // Replace with your Paystack public key
-        email: "user@example.com", // Get from user context/Clerk
-        amount: getTotalPrice(plan) * 100, // Amount in kobo
-        currency: "NGN",
-        plan: isYearly ? `${plan.id}_yearly` : `${plan.id}_monthly`,
-        callback: function (response) {
-          // Handle successful payment
-          console.log("Payment successful:", response);
-          // Update user subscription in Supabase
-          // Redirect to dashboard or show success message
-          onOpen();
-        },
-        onClose: function () {
-          console.log("Payment window closed");
-          setIsLoading(false);
-        },
-      });
-
-      handler.openIframe();
-    } catch (error) {
-      console.error("Payment error:", error);
-      setIsLoading(false);
-    }
+    // if (plan.price === 0) {
+    //   // Handle free plan signup
+    //   console.log("Signing up for free plan");
+    //   return;
+    // }
+    // setSelectedPlan(plan);
+    // setIsLoading(true);
+    // // Initialize Paystack
+    // try {
+    //   const handler = window.PaystackPop.setup({
+    //     key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY, // Replace with your Paystack public key
+    //     email: "user@example.com", // Get from user context/Clerk
+    //     amount: getTotalPrice(plan) * 100, // Amount in kobo
+    //     currency: "NGN",
+    //     plan: isYearly ? `${plan.id}_yearly` : `${plan.id}_monthly`,
+    //     callback: function (response) {
+    //       // Handle successful payment
+    //       console.log("Payment successful:", response);
+    //       // Update user subscription in Supabase
+    //       // Redirect to dashboard or show success message
+    //       onOpen();
+    //     },
+    //     onClose: function () {
+    //       console.log("Payment window closed");
+    //       setIsLoading(false);
+    //     },
+    //   });
+    //   handler.openIframe();
+    // } catch (error) {
+    //   console.error("Payment error:", error);
+    //   setIsLoading(false);
+    // }
   };
 
   const PlanCard = ({ plan }) => (
@@ -261,7 +258,7 @@ const SubscriptionPlans = () => {
           size="lg"
           className="w-full"
           onPress={() => handleSubscribe(plan)}
-          isLoading={isLoading && selectedPlan?.id === plan.id}
+          // isLoading={isLoading && selectedPlan?.id === plan.id}
           startContent={
             plan.price > 0 ? <CreditCard className="w-4 h-4" /> : null
           }
