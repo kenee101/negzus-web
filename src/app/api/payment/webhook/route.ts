@@ -27,22 +27,11 @@ export async function POST(req: Request) {
     const event = JSON.parse(rawBody);
 
     switch (event.event) {
-      case "subscription.create":
+      case "subscription.create": {
         // New subscription created
         console.log("🔄 Subscription Created:", event.data.subscription_code);
-        // Example: Update user's subscription status in your database
-        // await db.user.update({
-        //   where: { id: event.data.customer.email },
-        //   data: {
-        //     subscriptionStatus: 'active',
-        //     subscriptionId: event.data.subscription_code,
-        //     plan: event.data.plan.name,
-        //     subscriptionStart: new Date(event.data.createdAt),
-        //     subscriptionEnd: new Date(event.data.next_payment_date)
-        //   },
-        // });
         const { data, error } = await supabase
-          .from("users_subscriptions")
+          .from("user_subscriptions")
           .upsert(
             {
               user_id: userId,
@@ -66,31 +55,48 @@ export async function POST(req: Request) {
           );
         }
         break;
+      }
 
-      case "subscription.disable":
+      case "subscription.disable": {
         // Subscription disabled
         console.log("⏸️ Subscription Disabled:", event.data.subscription_code);
-        // Example: Update user's subscription status
-        // await db.user.update({
-        //   where: { subscriptionId: event.data.subscription_code },
-        //   data: { subscriptionStatus: 'inactive' },
-        // });
-        break;
+        const { data, error } = await supabase
+          .from("user_subscriptions")
+          .upsert(
+            {
+              user_id: userId,
+              status: event.data.status,
+              subscription_code: event.data.subscription_code,
+              plan_id: event.data.plan.name.toLowerCase().replace(" ", "_"),
+              subscription_start: new Date(event.data.createdAt).toISOString(),
+              subscription_end: new Date(
+                event.data.next_payment_date
+              ).toISOString(),
+              customer: JSON.stringify(event.data.customer),
+              authorization: JSON.stringify(event.data.authorization),
+            },
+            { onConflict: "user_id" }
+          );
 
-      case "subscription.expiring_cards":
+        if (error) {
+          return NextResponse.json(
+            { error: "Failed to update subscription." },
+            { status: 400 }
+          );
+        }
+        break;
+      }
+
+      case "subscription.expiring_cards": {
         // Subscription disabled
         console.log(
           "⏸️ Subscription with expiring cards:",
           event.data.subscription_code
         );
-        // Example: Update user's subscription status
-        // await db.user.update({
-        //   where: { subscriptionId: event.data.subscription_code },
-        //   data: { subscriptionStatus: 'inactive' },
-        // });
         break;
+      }
 
-      case "invoice.create":
+      case "invoice.create": {
         // New invoice created for subscription
         console.log("📄 Invoice Created:", event.data.invoice_number);
         // Example: Store invoice details
@@ -105,8 +111,9 @@ export async function POST(req: Request) {
         //   },
         // });
         break;
+      }
 
-      case "invoice.payment_failed":
+      case "invoice.payment_failed": {
         // Payment failed for subscription
         console.log(
           "❌ Payment Failed for Invoice:",
@@ -121,8 +128,9 @@ export async function POST(req: Request) {
         //   }
         // });
         break;
+      }
 
-      case "subscription.not_renew":
+      case "subscription.not_renew": {
         // Subscription will not renew
         console.log(
           "🛑 Subscription Not Renewing:",
@@ -134,8 +142,9 @@ export async function POST(req: Request) {
         //   data: { willRenew: false },
         // });
         break;
+      }
 
-      case "transfer.success":
+      case "transfer.success": {
         console.log("✅ Transfer Success:", event.data.reference);
         // Example:
         // await db.transaction.update({
@@ -148,8 +157,9 @@ export async function POST(req: Request) {
         //   data: { balance: event.data.amount / 100 },
         // });
         break;
+      }
 
-      case "transfer.failed":
+      case "transfer.failed": {
         console.log("❌ Transfer Failed:", event.data.reference);
         // Example:
         // await db.transaction.update({
@@ -157,9 +167,11 @@ export async function POST(req: Request) {
         //   data: { status: "failed" },
         // });
         break;
+      }
 
-      default:
+      default: {
         console.log("Unhandled Event:", event.event);
+      }
     }
 
     return NextResponse.json({ received: true }, { status: 200 });
