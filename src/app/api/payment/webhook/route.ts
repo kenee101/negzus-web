@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-// import { db } from "@/lib/db";
+import { createClerkSupabaseClient } from "@/utils/supabase";
+import { auth, clerkClient, User } from "@clerk/nextjs/server";
 
 // Verify Paystack signature
 function verifySignature(reqBody: string, signature: string | undefined) {
@@ -12,6 +13,9 @@ function verifySignature(reqBody: string, signature: string | undefined) {
 }
 
 export async function POST(req: Request) {
+  const { userId, getToken } = await auth();
+  const supabase = createClerkSupabaseClient(getToken);
+
   try {
     const rawBody = await req.text();
     const signature = req.headers.get("x-paystack-signature");
@@ -37,11 +41,48 @@ export async function POST(req: Request) {
         //     subscriptionEnd: new Date(event.data.next_payment_date)
         //   },
         // });
+        const { data, error } = await supabase
+          .from("users_subscriptions")
+          .upsert(
+            {
+              user_id: userId,
+              status: event.data.status,
+              subscription_code: event.data.subscription_code,
+              plan_id: event.data.plan.name.toLowerCase().replace(" ", "_"),
+              subscription_start: new Date(event.data.createdAt).toISOString(),
+              subscription_end: new Date(
+                event.data.next_payment_date
+              ).toISOString(),
+              customer: JSON.stringify(event.data.customer),
+              authorization: JSON.stringify(event.data.authorization),
+            },
+            { onConflict: "user_id" }
+          );
+
+        if (error) {
+          return NextResponse.json(
+            { error: "Failed to update subscription." },
+            { status: 400 }
+          );
+        }
         break;
 
       case "subscription.disable":
         // Subscription disabled
         console.log("⏸️ Subscription Disabled:", event.data.subscription_code);
+        // Example: Update user's subscription status
+        // await db.user.update({
+        //   where: { subscriptionId: event.data.subscription_code },
+        //   data: { subscriptionStatus: 'inactive' },
+        // });
+        break;
+
+      case "subscription.expiring_cards":
+        // Subscription disabled
+        console.log(
+          "⏸️ Subscription with expiring cards:",
+          event.data.subscription_code
+        );
         // Example: Update user's subscription status
         // await db.user.update({
         //   where: { subscriptionId: event.data.subscription_code },
