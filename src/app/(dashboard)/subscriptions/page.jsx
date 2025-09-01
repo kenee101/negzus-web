@@ -6,7 +6,6 @@ import {
   CardBody,
   Button,
   Chip,
-  Divider,
   Switch,
   Modal,
   ModalContent,
@@ -14,25 +13,33 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
+  Spinner,
 } from "@heroui/react";
 import {
   CheckCircle,
   X,
   Zap,
-  Users,
-  BarChart3,
   Crown,
-  Truck,
   Shield,
   Star,
   CreditCard,
 } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
+import dynamic from "next/dynamic";
+import generateReference from "@/utils/generateReference";
+
+const SubscriptionLink = dynamic(
+  () => import("@/components/SubscriptionLink"),
+  {
+    ssr: false,
+    loading: () => <Spinner color="success" />,
+  }
+);
 
 const SubscriptionPlans = () => {
   const [isYearly, setIsYearly] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { user } = useUser();
 
   const plans = [
     {
@@ -58,8 +65,10 @@ const SubscriptionPlans = () => {
     {
       id: "premium",
       name: "Premium",
-      price: 1500,
-      yearlyPrice: 15000,
+      monthlyPlanCode: "PLN_gpmhdx1vb0vrzny",
+      yearlyPlanCode: "PLN_levc0r8we1e6fzc",
+      price: 1200,
+      yearlyPrice: 12000,
       subtitle: "per month",
       description: "Best for regular drivers & ride-hail",
       popular: true,
@@ -78,8 +87,10 @@ const SubscriptionPlans = () => {
     {
       id: "business",
       name: "Business",
-      price: 5000,
-      yearlyPrice: 50000,
+      monthlyPlanCode: "PLN_hgh6hc9qmvlh7om",
+      yearlyPlanCode: "PLN_pb1uz8jbw4qt1it",
+      price: 3000,
+      yearlyPrice: 30000,
       subtitle: "per month",
       description: "For fleets & logistics companies",
       popular: false,
@@ -107,52 +118,17 @@ const SubscriptionPlans = () => {
 
   const getDisplayPrice = (plan) => {
     if (plan.price === 0) return formatPrice(0);
-    return formatPrice(isYearly ? plan.yearlyPrice / 12 : plan.price);
+    return formatPrice(plan.price);
   };
 
   const getTotalPrice = (plan) => {
     if (plan.price === 0) return formatPrice(0);
-    return isYearly ? formatPrice(plan.yearlyPrice) : formatPrice(plan.price);
+    return formatPrice(plan.yearlyPrice);
   };
 
   const getSavings = (plan) => {
     if (plan.price === 0) return formatPrice(0);
     return formatPrice(plan.price * 12 - plan.yearlyPrice);
-  };
-
-  const handleSubscribe = async (plan) => {
-    // if (plan.price === 0) {
-    //   // Handle free plan signup
-    //   console.log("Signing up for free plan");
-    //   return;
-    // }
-    // setSelectedPlan(plan);
-    // setIsLoading(true);
-    // // Initialize Paystack
-    // try {
-    //   const handler = window.PaystackPop.setup({
-    //     key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY, // Replace with your Paystack public key
-    //     email: "user@example.com", // Get from user context/Clerk
-    //     amount: getTotalPrice(plan) * 100, // Amount in kobo
-    //     currency: "NGN",
-    //     plan: isYearly ? `${plan.id}_yearly` : `${plan.id}_monthly`,
-    //     callback: function (response) {
-    //       // Handle successful payment
-    //       console.log("Payment successful:", response);
-    //       // Update user subscription in Supabase
-    //       // Redirect to dashboard or show success message
-    //       onOpen();
-    //     },
-    //     onClose: function () {
-    //       console.log("Payment window closed");
-    //       setIsLoading(false);
-    //     },
-    //   });
-    //   handler.openIframe();
-    // } catch (error) {
-    //   console.error("Payment error:", error);
-    //   setIsLoading(false);
-    // }
   };
 
   const PlanCard = ({ plan }) => (
@@ -250,21 +226,15 @@ const SubscriptionPlans = () => {
           ))}
         </div>
 
-        <Button
-          color={"success"}
-          variant={
-            plan.price === 0 ? "bordered" : plan.popular ? "solid" : "bordered"
-          }
-          size="lg"
-          className="w-full"
-          onPress={() => handleSubscribe(plan)}
-          // isLoading={isLoading && selectedPlan?.id === plan.id}
+        <SubscriptionLink
+          key={plan.id}
+          plan={plan}
+          isYearly={isYearly}
+          text={plan.price === 0 ? "Get Started Free" : "Subscribe"}
           startContent={
-            plan.price > 0 ? <CreditCard className="w-4 h-4" /> : null
+            plan.price === 0 ? null : <CreditCard className="w-5 h-5" />
           }
-        >
-          {plan.price === 0 ? "Get Started Free" : "Subscribe Now"}
-        </Button>
+        />
 
         {plan.price > 0 && (
           <p className="text-xs text-gray-500 text-center mt-3">

@@ -324,6 +324,7 @@ export default function OnboardingComponent() {
                     }}
                     classNames={{
                       base: `${getInputClassName("dateOfBirth")} mt-2`,
+                      label: "text-emerald-400",
                     }}
                     showMonthAndYearPickers={true}
                     labelPlacement={"outside"}
