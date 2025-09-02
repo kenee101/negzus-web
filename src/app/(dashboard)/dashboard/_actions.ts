@@ -14,6 +14,7 @@ interface OrderData {
   shipping_address: string;
   status:
     | "pending"
+    | "placed"
     | "refunded"
     | "delivered"
     | "cancelled"
@@ -22,7 +23,6 @@ interface OrderData {
     | "confirmed"
     | "preparing";
   created_at?: string;
-  payment_reference?: string;
 }
 
 export async function createOrder(orderData: OrderData) {
@@ -35,8 +35,8 @@ export async function createOrder(orderData: OrderData) {
     .select();
 
   if (error) {
-    console.error("Error creating order:", error);
-    throw new Error("Failed to create order");
+    console.error("Error creating order on the database:", error);
+    throw error;
   }
 
   revalidatePath("/dashboard/orders/history");

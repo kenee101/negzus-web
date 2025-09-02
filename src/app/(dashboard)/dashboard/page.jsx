@@ -103,14 +103,14 @@ export default function Dashboard() {
       ),
       total_price: amount,
       shipping_address: location,
-      status: "pending",
+      status: "placed",
       created_at: new Date().toISOString(),
     };
     setCurrentOrder(orderDetails);
     onOpen();
   };
 
-  const handlePaymentSuccess = (response) => {
+  const handlePaymentSuccess = (reference) => {
     // Reset form
     setAmount(0);
     setLocation("");
@@ -129,7 +129,7 @@ export default function Dashboard() {
       },
       placement: "top-right",
       title: "Payment successful!",
-      description: `Your order ${response.reference} has been placed successfully.`,
+      description: `Your order ${reference} has been placed successfully.`,
       radius: "lg",
       duration: 10000,
       pauseonhover: "true",

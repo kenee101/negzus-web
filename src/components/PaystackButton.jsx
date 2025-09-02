@@ -3,28 +3,38 @@
 import { useCallback } from "react";
 import { Button } from "@heroui/react";
 import PaystackPop from "@paystack/inline-js";
+import { PostgrestError } from "@supabase/supabase-js";
 
 export default function PaystackButton({
   amount,
   email,
-  onSuccess,
+  onOrder,
   onClose,
   reference,
   publicKey,
+  isLoading,
+  setIsLoading,
 }) {
+  // const [isLoading, setIsLoading] = useState(false);
   const initializePayment = useCallback(async () => {
     let redirectTimer;
     let transaction;
 
     try {
+      if (typeof onOrder === "function") {
+        await onOrder();
+      }
+
+      // Show a brief delay to ensure the order is created and toast is shown
+      await new Promise((resolve) => setTimeout(() => resolve(), 5000));
+      setIsLoading(false);
+
       const paystack = new PaystackPop();
 
       const handleSuccess = (response) => {
         console.log("Payment successful:", response);
         clearInterval(redirectTimer);
-        if (typeof onSuccess === "function") {
-          onSuccess(response);
-        }
+        onClose();
       };
 
       const handleClose = () => {
@@ -75,17 +85,24 @@ export default function PaystackButton({
         clearInterval(redirectTimer);
       };
     } catch (error) {
-      console.error("Error initializing Paystack:", error);
-      clearInterval(redirectTimer);
-      throw error;
+      onClose();
+      if (error instanceof PostgrestError) {
+        console.error("Error setting up order:", error.message);
+        throw error;
+      } else {
+        console.error("Error initializing Paystack:", error);
+        clearInterval(redirectTimer);
+        throw error;
+      }
     }
-  }, [amount, email, reference, publicKey, onSuccess, onClose]);
+  }, [amount, email, reference, publicKey, onOrder, onClose]);
 
   return (
     <Button
       onPress={initializePayment}
       color="success"
       variant="solid"
+      isLoading={isLoading}
       className="bg-[#035408] px-8 py-2 rounded-full text-white hover:opacity-90 transition-opacity"
     >
       Pay Now

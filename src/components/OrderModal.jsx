@@ -36,20 +36,18 @@ export default function OrderModal({
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handlePaymentSuccess = async (response) => {
+  const handlePaymentOrder = async () => {
     try {
       setIsLoading(true);
       // Create order in the database
-      await createOrder({
-        ...orderDetails,
-        payment_reference: response.reference,
-      });
-      onPaymentSuccess(response);
-      onClose();
+      const dataOrder = await createOrder(orderDetails);
+      onPaymentSuccess(orderDetails.reference);
+      // onPaymentSuccess(dataOrder);
     } catch (error) {
-      console.error("Error creating order:", error);
-    } finally {
       setIsLoading(false);
+      onClose();
+      console.error("Error creating order:", error);
+      throw error;
     }
   };
 
@@ -106,21 +104,24 @@ export default function OrderModal({
           </Button>
           <PaystackButton
             amount={orderDetails.total_price * 100} // Convert to kobo
-            onSuccess={handlePaymentSuccess}
+            onOrder={handlePaymentOrder}
+            onClose={onClose}
             className="bg-success text-white"
             disabled={isLoading}
             email={email}
             reference={orderDetails.reference}
             publicKey={process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY}
-          >
-            {isLoading ? (
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+          />
+          {/* {isLoading ? (
               <div className="flex items-center gap-2">
                 <Spinner size="sm" color="success" />
               </div>
             ) : (
               "Pay Now"
             )}
-          </PaystackButton>
+          </PaystackButton> */}
         </ModalFooter>
       </ModalContent>
     </Modal>
