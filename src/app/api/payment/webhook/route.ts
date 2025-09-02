@@ -122,22 +122,27 @@ export async function POST(req: Request) {
             }
           }
 
-          const { error } = await supabase.from("payments").insert({
-            user_id: userId,
-            paystack_reference: event.data.reference,
-            paystack_transaction_id: event.data.id,
-            payment_method: event.data.channel,
-            amount: event.data.amount / 100,
-            fees: event.data.fees / 100,
-            status: event.data.status,
-            metadata:
-              typeof event.data.metadata === "object"
-                ? JSON.stringify(event.data.metadata)
-                : null,
-            paid_at: new Date(event.data.paid_at).toISOString(),
-            customer: JSON.stringify(event.data.customer),
-            authorization: JSON.stringify(event.data.authorization),
-          });
+          const { error } = await supabase.from("payments").upsert(
+            {
+              user_id: userId,
+              paystack_reference: event.data.reference,
+              paystack_transaction_id: event.data.id,
+              payment_method: event.data.channel,
+              amount: event.data.amount / 100,
+              fees: event.data.fees / 100,
+              status: event.data.status,
+              metadata:
+                typeof event.data.metadata === "object"
+                  ? JSON.stringify(event.data.metadata)
+                  : null,
+              paid_at: new Date(event.data.paid_at).toISOString(),
+              customer: JSON.stringify(event.data.customer),
+              authorization: JSON.stringify(event.data.authorization),
+            },
+            {
+              onConflict: "paystack_reference",
+            }
+          );
           console.log("✅ Transaction Successful:", event.data.reference);
           console.log("🔥 Transaction:", event.data);
           if (error) {
