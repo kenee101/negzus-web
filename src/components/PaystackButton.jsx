@@ -40,13 +40,12 @@ export default function PaystackButton({
         key: publicKey,
         email,
         amount,
-        ref: reference,
+        reference,
         currency: "NGN",
         onSuccess: handleSuccess,
         onClose: handleClose,
         onLoad: () => {
           console.log("Paystack loaded");
-          // clearInterval(redirectTimer);
         },
         metadata: {
           cancel_action:

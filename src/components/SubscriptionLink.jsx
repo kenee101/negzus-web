@@ -101,3 +101,4 @@ export default function SubscriptionLink({
     </button>
   );
 }
+// Test link, https://paystack.shop/pay/fo-iuxbkz0

@@ -7,6 +7,7 @@ const isPublicRoute = createRouteMatcher([
   "/",
   "/get-started",
   "/downloads",
+  "/api/payment/webhook",
 ]);
 
 const isSignInSignUpRoute = createRouteMatcher([

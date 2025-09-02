@@ -10,25 +10,27 @@ import {
   SelectItem,
   Chip,
   Spinner,
+  useDisclosure,
 } from "@heroui/react";
 import { CreditCardIcon, FuelIcon, MapPinIcon, TruckIcon } from "lucide-react";
 import { addToast } from "@heroui/toast";
 import generateReference from "@/utils/generateReference";
 import { useUser } from "@clerk/nextjs";
 import { formatPrice } from "@/utils/formatPrice";
-import dynamic from "next/dynamic";
+import OrderModal from "@/components/OrderModal";
+// import dynamic from "next/dynamic";
 
-const PaystackButton = dynamic(
-  () =>
-    import("@/components/PaystackButton").then((mod) => {
-      console.log("PaystackButton loaded successfully");
-      return mod.default || mod;
-    }),
-  {
-    ssr: false,
-    loading: () => <Spinner color="success" />,
-  }
-);
+// const PaystackButton = dynamic(
+//   () =>
+//     import("@/components/PaystackButton").then((mod) => {
+//       console.log("PaystackButton loaded successfully");
+//       return mod.default || mod;
+//     }),
+//   {
+//     ssr: false,
+//     loading: () => <Spinner color="success" />,
+//   }
+// );
 
 const gasStations = [
   {
@@ -77,6 +79,9 @@ export default function Dashboard() {
   const [location, setLocation] = useState("");
   const [amount, setAmount] = useState(0);
   const [isClient, setIsClient] = useState(false);
+  const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
+  const [currentOrder, setCurrentOrder] = useState(null);
+
   const { user } = useUser();
 
   useEffect(() => {
@@ -86,6 +91,24 @@ export default function Dashboard() {
       (parseInt(fuelTypes.find((f) => f.key === selectedFuel)?.price) || 0);
     setAmount(price);
   }, [quantity, selectedFuel]);
+
+  const handlePlaceOrder = () => {
+    const orderDetails = {
+      user_id: user?.id,
+      reference: generateReference(),
+      fuel_type: fuelTypes.find((f) => f.key === selectedFuel)?.key,
+      quantity: parseInt(quantity),
+      unit_price: parseInt(
+        fuelTypes.find((f) => f.key === selectedFuel)?.price
+      ),
+      total_price: amount,
+      shipping_address: location,
+      status: "pending",
+      created_at: new Date().toISOString(),
+    };
+    setCurrentOrder(orderDetails);
+    onOpen();
+  };
 
   const handlePaymentSuccess = (response) => {
     // Reset form
@@ -148,10 +171,16 @@ export default function Dashboard() {
     });
   };
 
-  const handlePaymentCancel = () => {
+  const handleOrderCancel = () => {
     setAmount(0);
     setLocation("");
     setQuantity("");
+    onClose();
+  };
+
+  const handleOrderSuccess = (response) => {
+    // Your existing success handling code
+    handlePaymentSuccess(response);
   };
 
   return (
@@ -297,14 +326,21 @@ export default function Dashboard() {
             location.trim() !== "" &&
             amount > 0 && (
               <div className="mt-6 flex justify-center">
-                <PaystackButton
+                {/* <PaystackButton
                   amount={Math.round(amount * 100)}
                   email={user?.emailAddresses?.[0]?.emailAddress}
                   onSuccess={handlePaymentSuccess}
                   onClose={handlePaymentCancel}
                   reference={generateReference()}
                   publicKey={process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY}
-                />
+                /> */}
+                <Button
+                  color="success"
+                  onPress={handlePlaceOrder}
+                  // isDisabled={!location || !quantity}
+                >
+                  Place Order
+                </Button>
               </div>
             )}
         </CardBody>
@@ -365,6 +401,16 @@ export default function Dashboard() {
           </div>
         </CardBody>
       </Card>
+
+      <OrderModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onOpenChange={onOpenChange}
+        orderDetails={currentOrder}
+        email={user?.emailAddresses?.[0]?.emailAddress}
+        onPaymentSuccess={handleOrderSuccess}
+        onPaymentCancel={handleOrderCancel}
+      />
     </div>
   );
 }

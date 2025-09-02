@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClerkSupabaseClient } from "@/utils/supabase";
-import { auth, clerkClient, User } from "@clerk/nextjs/server";
+import { auth, User } from "@clerk/nextjs/server";
 
 // Verify Paystack signature
 function verifySignature(reqBody: string, signature: string | undefined) {
@@ -66,16 +66,14 @@ export async function POST(req: Request) {
             {
               user_id: userId,
               status: event.data.status,
-              subscription_code: event.data.subscription_code,
-              plan_id: event.data.plan.name.toLowerCase().replace(" ", "_"),
-              subscription_start: new Date(event.data.createdAt).toISOString(),
-              subscription_end: new Date(
-                event.data.next_payment_date
-              ).toISOString(),
-              customer: JSON.stringify(event.data.customer),
-              authorization: JSON.stringify(event.data.authorization),
+              disabled_at: new Date().toISOString(), // Track when it was disabled
+              subscription_end: event.data.next_payment_date
+                ? new Date(event.data.next_payment_date).toISOString()
+                : null,
             },
-            { onConflict: "user_id" }
+            {
+              onConflict: "user_id",
+            }
           );
 
         if (error) {
@@ -96,40 +94,6 @@ export async function POST(req: Request) {
         break;
       }
 
-      case "invoice.create": {
-        // New invoice created for subscription
-        console.log("📄 Invoice Created:", event.data.invoice_number);
-        // Example: Store invoice details
-        // await db.invoice.create({
-        //   data: {
-        //     invoiceNumber: event.data.invoice_number,
-        //     amount: event.data.amount / 100,
-        //     status: event.data.status,
-        //     dueDate: new Date(event.data.due_date),
-        //     subscriptionId: event.data.subscription_code,
-        //     userId: event.data.customer.email
-        //   },
-        // });
-        break;
-      }
-
-      case "invoice.payment_failed": {
-        // Payment failed for subscription
-        console.log(
-          "❌ Payment Failed for Invoice:",
-          event.data.invoice_number
-        );
-        // Example: Notify user of payment failure
-        // await db.notification.create({
-        //   data: {
-        //     userId: event.data.customer.email,
-        //     type: 'payment_failed',
-        //     message: `Payment failed for invoice ${event.data.invoice_number}. Please update your payment method.`
-        //   }
-        // });
-        break;
-      }
-
       case "subscription.not_renew": {
         // Subscription will not renew
         console.log(
@@ -144,30 +108,106 @@ export async function POST(req: Request) {
         break;
       }
 
-      case "transfer.success": {
-        console.log("✅ Transfer Success:", event.data.reference);
-        // Example:
-        // await db.transaction.update({
-        //   where: { reference: event.data.reference },
-        //   data: { status: "success" },
-        // });
-        // Update station wallet balance
-        // await db.station.update({
-        //   where: { subaccountId: event.data.metadata.subaccountId },
-        //   data: { balance: event.data.amount / 100 },
-        // });
+      case "charge.success":
+        console.log("✅ Transaction Successful:", event.data.reference);
+        try {
+          await supabase.from("payments").upsert({
+            user_id: userId,
+            paystack_reference: event.data.reference,
+            paystack_transaction_id: event.data.id,
+            payment_method: event.data.channel,
+            amount: event.data.amount / 100,
+            fees: event.data.fees / 100,
+            status: event.data.status,
+            metadata: JSON.stringify(event.data.metadata),
+            paid_at: new Date(event.data.paid_at).toISOString(),
+            customer: JSON.stringify(event.data.customer),
+            authorization: JSON.stringify(event.data.authorization),
+          });
+        } catch (error) {
+          console.error("Error saving transaction:", error);
+        }
         break;
-      }
 
-      case "transfer.failed": {
-        console.log("❌ Transfer Failed:", event.data.reference);
-        // Example:
-        // await db.transaction.update({
-        //   where: { reference: event.data.reference },
-        //   data: { status: "failed" },
-        // });
-        break;
-      }
+      // case "transfer.success":
+      //   console.log("✅ Transfer Successful:", event.data.reference);
+      //   try {
+      //     await supabase
+      //       .from("transfers")
+      //       .update({
+      //         status: "success",
+      //         transferred_at: new Date().toISOString(),
+      //       })
+      //       .eq("reference", event.data.reference);
+      //   } catch (error) {
+      //     console.error("Error updating transfer status:", error);
+      //   }
+      //   break;
+
+      // case "transfer.failed":
+      //   console.log("❌ Transfer Failed:", event.data.reference);
+      //   try {
+      //     await supabase
+      //       .from("transfers")
+      //       .update({
+      //         status: "failed",
+      //         failure_reason: event.data.reason || "Unknown error",
+      //         failed_at: new Date().toISOString(),
+      //       })
+      //       .eq("reference", event.data.reference);
+      //   } catch (error) {
+      //     console.error("Error updating failed transfer:", error);
+      //   }
+      //   break;
+
+      // case "invoice.create":
+      //   // New invoice created
+      //   console.log("📄 Invoice Created:", event.data.invoice_number);
+      //   try {
+      //     await supabase.from("invoices").upsert({
+      //       invoice_number: event.data.invoice_number,
+      //       customer_email: event.data.customer.email,
+      //       amount: event.data.amount / 100, // Convert from kobo to naira
+      //       status: event.data.status,
+      //       due_date: new Date(event.data.due_date).toISOString(),
+      //       subscription_id: event.data.subscription_code,
+      //       metadata: event.data.metadata,
+      //     });
+      //   } catch (error) {
+      //     console.error("Error saving invoice:", error);
+      //   }
+      //   break;
+
+      // case "invoice.payment_failed":
+      //   console.log("❌ Invoice Payment Failed:", event.data.invoice_number);
+      //   try {
+      //     await supabase
+      //       .from("invoices")
+      //       .update({
+      //         status: "failed",
+      //         last_payment_attempt: new Date().toISOString(),
+      //       })
+      //       .eq("invoice_number", event.data.invoice_number);
+      //   } catch (error) {
+      //     console.error("Error updating failed invoice:", error);
+      //   }
+      //   break;
+
+      // case "invoice.update":
+      //   console.log("✅ Invoice Update:", event.data.invoice_number);
+      //   try {
+      //     await supabase
+      //       .from("invoices")
+      //       .update({
+      //         status: event.data.status,
+      //         paid_at: new Date().toISOString(),
+      //         payment_reference: event.data.transaction.reference,
+      //       })
+      //       .eq("invoice_number", event.data.invoice_number);
+      //   } catch (error) {
+      //     console.error("Error updating paid invoice:", error);
+      //   }
+      //   break;
 
       default: {
         console.log("Unhandled Event:", event.event);
