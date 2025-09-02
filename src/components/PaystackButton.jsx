@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { Button } from "@heroui/react";
 import PaystackPop from "@paystack/inline-js";
 import { PostgrestError } from "@supabase/supabase-js";
+import { useUser } from "@clerk/nextjs";
 
 export default function PaystackButton({
   amount,
@@ -15,6 +16,7 @@ export default function PaystackButton({
   isLoading,
   setIsLoading,
 }) {
+  const { user } = useUser();
   // const [isLoading, setIsLoading] = useState(false);
   const initializePayment = useCallback(async () => {
     let redirectTimer;
@@ -58,7 +60,7 @@ export default function PaystackButton({
           console.log("Paystack loaded");
         },
         metadata: {
-          user_id: userId,
+          user_id: user.id,
         },
       });
 
@@ -94,7 +96,7 @@ export default function PaystackButton({
         throw error;
       }
     }
-  }, [amount, email, reference, publicKey, onOrder, onClose]);
+  }, [amount, email, reference, publicKey, onOrder, onClose, user]);
 
   return (
     <Button

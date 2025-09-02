@@ -128,7 +128,7 @@ export default function Dashboard() {
         closeButton: "opacity-100 absolute right-4 top-1/2 -translate-y-1/2",
       },
       placement: "top-right",
-      title: "Payment successful!",
+      title: "Order successful!",
       description: `Your order ${reference} has been placed successfully.`,
       radius: "lg",
       duration: 10000,
