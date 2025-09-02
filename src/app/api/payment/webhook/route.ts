@@ -108,9 +108,9 @@ export async function POST(req: Request) {
         break;
       }
 
-      case "charge.success":
+      case "charge.success": {
         try {
-          const { data, error } = await supabase.from("payments").upsert({
+          const { error } = await supabase.from("payments").insert({
             user_id: userId,
             paystack_reference: event.data.reference,
             paystack_transaction_id: event.data.id,
@@ -127,6 +127,7 @@ export async function POST(req: Request) {
             authorization: JSON.stringify(event.data.authorization),
           });
           console.log("✅ Transaction Successful:", event.data.reference);
+          console.log("🔥 Transaction:", event.data);
           if (error) {
             console.error("Error saving transaction:", error);
             throw error;
@@ -136,7 +137,7 @@ export async function POST(req: Request) {
           throw error;
         }
         break;
-
+      }
       // case "transfer.success":
       //   console.log("✅ Transfer Successful:", event.data.reference);
       //   try {
