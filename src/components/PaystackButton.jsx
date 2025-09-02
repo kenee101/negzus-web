@@ -58,8 +58,7 @@ export default function PaystackButton({
           console.log("Paystack loaded");
         },
         metadata: {
-          cancel_action:
-            typeof window !== "undefined" ? window.location.href : "",
+          user_id: userId,
         },
       });
 

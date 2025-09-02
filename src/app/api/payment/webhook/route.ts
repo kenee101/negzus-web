@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClerkSupabaseClient } from "@/utils/supabase";
-import { auth, User } from "@clerk/nextjs/server";
 
 // Verify Paystack signature
 function verifySignature(reqBody: string, signature: string | undefined) {
@@ -13,8 +12,7 @@ function verifySignature(reqBody: string, signature: string | undefined) {
 }
 
 export async function POST(req: Request) {
-  const { userId, getToken } = await auth();
-  const supabase = createClerkSupabaseClient(getToken);
+  const supabase = createClerkSupabaseClient();
 
   try {
     const rawBody = await req.text();
@@ -34,7 +32,7 @@ export async function POST(req: Request) {
           .from("user_subscriptions")
           .upsert(
             {
-              user_id: userId,
+              user_id: event.data.metadata?.user_id,
               status: event.data.status,
               subscription_code: event.data.subscription_code,
               plan_id: event.data.plan.name.toLowerCase().replace(" ", "_"),
@@ -64,7 +62,7 @@ export async function POST(req: Request) {
           .from("user_subscriptions")
           .upsert(
             {
-              user_id: userId,
+              user_id: event.data.metadata?.user_id,
               status: event.data.status,
               disabled_at: new Date().toISOString(), // Track when it was disabled
               subscription_end: event.data.next_payment_date
@@ -109,7 +107,19 @@ export async function POST(req: Request) {
       }
 
       case "charge.success": {
+        let userId = event.data.metadata?.user_id;
         try {
+          if (!userId && event.data.customer?.email) {
+            const { data: userData, error: userError } = await supabase
+              .from("clerk_users")
+              .select("id")
+              .eq("email", event.data.customer.email)
+              .single();
+            if (!userError && userData) {
+              userId = userData.id;
+            }
+          }
+
           const { error } = await supabase.from("payments").insert({
             user_id: userId,
             paystack_reference: event.data.reference,

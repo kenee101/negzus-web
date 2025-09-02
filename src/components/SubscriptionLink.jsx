@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Spinner } from "@heroui/react";
+import { useUser } from "@clerk/nextjs";
 // import { toast } from "sonner";
 
 export default function SubscriptionLink({
@@ -13,18 +14,19 @@ export default function SubscriptionLink({
   className = "",
 }) {
   const router = useRouter();
+  const { user } = useUser();
 
   const getSubscriptionLink = () => {
     if (!plan) return "/subscriptions";
 
     const links = {
       premium: {
-        monthly: "https://paystack.shop/pay/bhcdy7a0m9",
-        yearly: "https://paystack.shop/pay/iqfy8r6l6o",
+        monthly: `https://paystack.shop/pay/bhcdy7a0m9?metadata[user_id]=${user.id}`,
+        yearly: `https://paystack.shop/pay/iqfy8r6l6o?metadata[user_id]=${user.id}`,
       },
       business: {
-        monthly: "https://paystack.shop/pay/yd8yg45h66",
-        yearly: "https://paystack.shop/pay/4rmnn524e5",
+        monthly: `https://paystack.shop/pay/yd8yg45h66?metadata[user_id]=${user.id}`,
+        yearly: `https://paystack.shop/pay/4rmnn524e5?metadata[user_id]=${user.id}`,
       },
     };
 
