@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClerkSupabaseClient } from "@/utils/supabase";
+import { auth } from "@clerk/nextjs/server";
 
 // Verify Paystack signature
 function verifySignature(reqBody: string, signature: string | undefined) {
@@ -12,7 +13,8 @@ function verifySignature(reqBody: string, signature: string | undefined) {
 }
 
 export async function POST(req: Request) {
-  const supabase = createClerkSupabaseClient();
+  const { getToken } = await auth();
+  const supabase = createClerkSupabaseClient(getToken);
 
   try {
     const rawBody = await req.text();
