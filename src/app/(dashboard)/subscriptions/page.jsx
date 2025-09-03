@@ -295,11 +295,11 @@ const SubscriptionPlans = () => {
         </div>
 
         {/* Testing purposes */}
-        <button
+        {/* <button
           onClick={() => {
             console.log("Test subscription");
             window.open(
-              `https://paystack.shop/pay/r11k2vee9l`,
+              `https://paystack.shop/pay/56hj2wqm4y`,
               "_blank",
               "noopener,noreferrer"
             );
@@ -307,7 +307,7 @@ const SubscriptionPlans = () => {
           className={`bg-[#035408] text-center outline-none border-[#96a197] px-8 py-2 rounded-full text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-4`}
         >
           Test subscription
-        </button>
+        </button> */}
 
         {/* FAQ Section */}
         <div className="max-w-3xl mx-auto">

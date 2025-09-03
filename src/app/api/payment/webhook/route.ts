@@ -23,28 +23,69 @@ export async function POST(req: Request) {
     }
 
     const event = JSON.parse(rawBody);
+    let userId = event.data.metadata?.user_id;
+
+    if (!userId && event.data.customer?.email) {
+      const { data: userData, error: userError } = await supabase
+        .from("clerk_users")
+        .select("id")
+        .eq("email_address", event.data.customer.email)
+        .single();
+
+      if (userError) {
+        console.error("Error fetching user:", userError);
+        throw userError;
+      }
+
+      if (!userError && userData) {
+        userId = userData.id;
+      }
+    }
+
+    if (!userId && event.data.customer?.first_name) {
+      const { data: userData, error: userError } = await supabase
+        .from("clerk_users")
+        .select("id")
+        .eq("first_name", event.data.customer.first_name)
+        .single();
+
+      if (userError) {
+        console.error("Error fetching user:", userError);
+        throw userError;
+      }
+
+      if (!userError && userData) {
+        userId = userData.id;
+      }
+    }
+
+    if (!userId && event.data.customer?.last_name) {
+      const { data: userData, error: userError } = await supabase
+        .from("clerk_users")
+        .select("id")
+        .eq("last_name", event.data.customer.last_name)
+        .single();
+
+      if (userError) {
+        console.error("Error fetching user:", userError);
+        throw userError;
+      }
+
+      if (!userError && userData) {
+        userId = userData.id;
+      }
+    }
+    console.log("userId", userId);
 
     switch (event.event) {
       case "subscription.create": {
         console.log("🔄 Event Data:", event.data);
-        const { data: userData, error: userError } = await supabase
-          .from("clerk_users")
-          .select("id")
-          .eq("email_address", event.data.customer.email)
-          .single();
-
-        if (userError) {
-          console.error("Error fetching user:", userError);
-          throw userError;
-        }
-
-        console.log(userData);
 
         const { error: subscriptionError } = await supabase
           .from("user_subscriptions")
           .upsert(
             {
-              user_id: userData?.id,
+              user_id: userId,
               status: event.data.status,
               subscription_code: event.data.subscription_code,
               plan_id: event.data.plan.name.toLowerCase().replaceAll(" ", "_"),
@@ -66,21 +107,11 @@ export async function POST(req: Request) {
       }
 
       case "subscription.disable": {
-        const { data: userData, error: userError } = await supabase
-          .from("clerk_users")
-          .select("id")
-          .eq("email_address", event.data.customer.email)
-          .single();
-
-        if (userError) {
-          console.error("Error fetching user:", userError);
-          throw userError;
-        }
-        console.log(userData);
+        console.log("🔄 Event Data:", event.data);
 
         const { error } = await supabase.from("user_subscriptions").upsert(
           {
-            user_id: userData?.id,
+            user_id: userId,
             status: event.data.status,
             disabled_at: new Date().toISOString(),
             subscription_end: event.data.next_payment_date
@@ -91,7 +122,6 @@ export async function POST(req: Request) {
             onConflict: "user_id",
           }
         );
-        console.log("⏸️ Subscription Disabled:", event.data);
         if (error) {
           console.error("Error saving subscription:", error);
           throw error;
@@ -100,21 +130,11 @@ export async function POST(req: Request) {
       }
 
       case "subscription.expiring_cards": {
-        const { data: userData, error: userError } = await supabase
-          .from("clerk_users")
-          .select("id")
-          .eq("email_address", event.data.customer.email)
-          .single();
-
-        if (userError) {
-          console.error("Error fetching user:", userError);
-          throw userError;
-        }
-        console.log(userData);
+        console.log("🔄 Event Data:", event.data);
 
         const { error } = await supabase.from("user_subscriptions").upsert(
           {
-            user_id: userData?.id,
+            user_id: userId,
             status: event.data.status,
             subscription_end: event.data.next_payment_date
               ? new Date(event.data.next_payment_date).toISOString()
@@ -125,7 +145,6 @@ export async function POST(req: Request) {
             onConflict: "user_id",
           }
         );
-        console.log("⏸️ Subscription with expiring cards:", event.data);
         if (error) {
           console.error("Error saving subscription:", error);
           throw error;
@@ -134,21 +153,11 @@ export async function POST(req: Request) {
       }
 
       case "subscription.not_renew": {
-        const { data: userData, error: userError } = await supabase
-          .from("clerk_users")
-          .select("id")
-          .eq("email_address", event.data.customer.email)
-          .single();
-
-        if (userError) {
-          console.error("Error fetching user:", userError);
-          throw userError;
-        }
-        console.log(userData);
+        console.log("🔄 Event Data:", event.data);
 
         const { error } = await supabase.from("user_subscriptions").upsert(
           {
-            user_id: userData?.id,
+            user_id: userId,
             status: event.data.status,
             subscription_end: event.data.next_payment_date
               ? new Date(event.data.next_payment_date).toISOString()
@@ -158,7 +167,6 @@ export async function POST(req: Request) {
             onConflict: "user_id",
           }
         );
-        console.log("🛑 Subscription Not Renewing:", event.data);
         if (error) {
           console.error("Error saving subscription:", error);
           throw error;
@@ -167,58 +175,31 @@ export async function POST(req: Request) {
       }
 
       case "charge.success": {
-        let userId = event.data.metadata?.user_id;
-        try {
-          if (!userId && event.data.customer?.email) {
-            const { data: userData, error: userError } = await supabase
-              .from("clerk_users")
-              .select("id")
-              .eq("email_address", event.data.customer.email)
-              .single();
+        console.log("🔄 Event Data:", event.data);
 
-            if (userError) {
-              console.error("Error fetching user:", userError);
-              throw userError;
-            }
-
-            if (!userError && userData) {
-              userId = userData.id;
-            }
+        const { error } = await supabase.from("payments").upsert(
+          {
+            user_id: userId,
+            paystack_reference: event.data.reference,
+            paystack_transaction_id: event.data.id,
+            plan_id: event.data.plan.name.toLowerCase().replaceAll(" ", "_"),
+            payment_method: event.data.channel,
+            amount: event.data.amount / 100,
+            fees: event.data.fees / 100,
+            status: event.data.status,
+            metadata:
+              typeof event.data.metadata === "object"
+                ? JSON.stringify(event.data.metadata)
+                : null,
+            paid_at: new Date(event.data.paid_at).toISOString(),
+            customer: JSON.stringify(event.data.customer),
+            authorization: JSON.stringify(event.data.authorization),
+          },
+          {
+            onConflict: "paystack_reference",
           }
-          console.log(
-            "plan_id",
-            event.data.plan.name.toLowerCase().replaceAll(" ", "_")
-          );
-
-          const { error } = await supabase.from("payments").upsert(
-            {
-              user_id: userId,
-              paystack_reference: event.data.reference,
-              paystack_transaction_id: event.data.id,
-              plan_id: event.data.plan.name.toLowerCase().replaceAll(" ", "_"),
-              payment_method: event.data.channel,
-              amount: event.data.amount / 100,
-              fees: event.data.fees / 100,
-              status: event.data.status,
-              metadata:
-                typeof event.data.metadata === "object"
-                  ? JSON.stringify(event.data.metadata)
-                  : null,
-              paid_at: new Date(event.data.paid_at).toISOString(),
-              customer: JSON.stringify(event.data.customer),
-              authorization: JSON.stringify(event.data.authorization),
-            },
-            {
-              onConflict: "paystack_reference",
-            }
-          );
-          if (error) {
-            console.error("Error saving transaction:", error);
-            throw error;
-          }
-          console.log("✅ Transaction Successful:", event.data.reference);
-          console.log("🔥 Transaction:", event.data);
-        } catch (error) {
+        );
+        if (error) {
           console.error("Error saving transaction:", error);
           throw error;
         }
