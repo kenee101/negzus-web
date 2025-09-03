@@ -185,6 +185,10 @@ export async function POST(req: Request) {
               userId = userData.id;
             }
           }
+          console.log(
+            "plan_id",
+            event.data.plan.name.toLowerCase().replace(" ", "_")
+          );
 
           const { error } = await supabase.from("payments").upsert(
             {
