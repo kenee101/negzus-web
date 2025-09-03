@@ -20,12 +20,12 @@ export default function SubscriptionLink({
 
     const links = {
       premium: {
-        monthly: `https://paystack.shop/pay/bhcdy7a0m9?metadata[user_id]=${user.id}`,
-        yearly: `https://paystack.shop/pay/iqfy8r6l6o?metadata[user_id]=${user.id}`,
+        monthly: `https://paystack.shop/pay/bhcdy7a0m9`,
+        yearly: `https://paystack.shop/pay/iqfy8r6l6o`,
       },
       business: {
-        monthly: `https://paystack.shop/pay/yd8yg45h66?metadata[user_id]=${user.id}`,
-        yearly: `https://paystack.shop/pay/4rmnn524e5?metadata[user_id]=${user.id}`,
+        monthly: `https://paystack.shop/pay/yd8yg45h66`,
+        yearly: `https://paystack.shop/pay/4rmnn524e5`,
       },
     };
 

@@ -15,7 +15,7 @@ function verifySignature(reqBody: string, signature: string | undefined) {
 export async function POST(req: Request) {
   const { getToken } = await auth();
   const supabase = createClerkSupabaseClient(getToken);
-  console.log(getToken);
+  console.log(getToken());
 
   try {
     const rawBody = await req.text();
@@ -29,11 +29,18 @@ export async function POST(req: Request) {
 
     switch (event.event) {
       case "subscription.create": {
-        const { data, error } = await supabase
+        const { data: userData, error: userError } = await supabase
+          .from("clerk_users")
+          .select("id")
+          .eq("email", event.data.customer.email)
+          .single();
+        console.log(userData);
+
+        const { error: subscriptionError } = await supabase
           .from("user_subscriptions")
           .upsert(
             {
-              user_id: event.data.metadata?.user_id,
+              user_id: userData?.id,
               status: event.data.status,
               subscription_code: event.data.subscription_code,
               plan_id: event.data.plan.name.toLowerCase().replace(" ", "_"),
@@ -48,29 +55,34 @@ export async function POST(req: Request) {
           );
         console.log("🔄 Subscription Created:", event.data);
 
-        if (error) {
-          console.error("Error saving subscription:", error);
-          throw error;
+        if (subscriptionError) {
+          console.error("Error saving subscription:", subscriptionError);
+          throw subscriptionError;
         }
         break;
       }
 
       case "subscription.disable": {
-        const { data, error } = await supabase
-          .from("user_subscriptions")
-          .upsert(
-            {
-              user_id: event.data.metadata?.user_id,
-              status: event.data.status,
-              disabled_at: new Date().toISOString(),
-              subscription_end: event.data.next_payment_date
-                ? new Date(event.data.next_payment_date).toISOString()
-                : null,
-            },
-            {
-              onConflict: "user_id",
-            }
-          );
+        const { data: userData, error: userError } = await supabase
+          .from("clerk_users")
+          .select("id")
+          .eq("email", event.data.customer.email)
+          .single();
+        console.log(userData);
+
+        const { error } = await supabase.from("user_subscriptions").upsert(
+          {
+            user_id: userData?.id,
+            status: event.data.status,
+            disabled_at: new Date().toISOString(),
+            subscription_end: event.data.next_payment_date
+              ? new Date(event.data.next_payment_date).toISOString()
+              : null,
+          },
+          {
+            onConflict: "user_id",
+          }
+        );
         console.log("⏸️ Subscription Disabled:", event.data);
         if (error) {
           console.error("Error saving subscription:", error);
@@ -80,9 +92,16 @@ export async function POST(req: Request) {
       }
 
       case "subscription.expiring_cards": {
+        const { data: userData, error: userError } = await supabase
+          .from("clerk_users")
+          .select("id")
+          .eq("email", event.data.customer.email)
+          .single();
+        console.log(userData);
+
         const { error } = await supabase.from("user_subscriptions").upsert(
           {
-            user_id: event.data.metadata?.user_id,
+            user_id: userData?.id,
             status: event.data.status,
             subscription_end: event.data.next_payment_date
               ? new Date(event.data.next_payment_date).toISOString()
@@ -102,9 +121,16 @@ export async function POST(req: Request) {
       }
 
       case "subscription.not_renew": {
+        const { data: userData, error: userError } = await supabase
+          .from("clerk_users")
+          .select("id")
+          .eq("email", event.data.customer.email)
+          .single();
+        console.log(userData);
+
         const { error } = await supabase.from("user_subscriptions").upsert(
           {
-            user_id: event.data.metadata?.user_id,
+            user_id: userData?.id,
             status: event.data.status,
             subscription_end: event.data.next_payment_date
               ? new Date(event.data.next_payment_date).toISOString()
@@ -157,6 +183,10 @@ export async function POST(req: Request) {
               onConflict: "paystack_reference",
             }
           );
+          if (error) {
+            console.error("Error saving transaction:", error);
+            throw error;
+          }
           console.log("✅ Transaction Successful:", event.data.reference);
           console.log("🔥 Transaction:", event.data);
         } catch (error) {
