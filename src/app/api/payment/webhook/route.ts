@@ -47,7 +47,7 @@ export async function POST(req: Request) {
               user_id: userData?.id,
               status: event.data.status,
               subscription_code: event.data.subscription_code,
-              plan_id: event.data.plan.name.toLowerCase().replace(" ", "_"),
+              plan_id: event.data.plan.name.toLowerCase().replaceAll(" ", "_"),
               subscription_start: new Date(event.data.createdAt).toISOString(),
               subscription_end: new Date(
                 event.data.next_payment_date
@@ -187,7 +187,7 @@ export async function POST(req: Request) {
           }
           console.log(
             "plan_id",
-            event.data.plan.name.toLowerCase().replace(" ", "_")
+            event.data.plan.name.toLowerCase().replaceAll(" ", "_")
           );
 
           const { error } = await supabase.from("payments").upsert(
@@ -195,7 +195,7 @@ export async function POST(req: Request) {
               user_id: userId,
               paystack_reference: event.data.reference,
               paystack_transaction_id: event.data.id,
-              plan_id: event.data.plan.name.toLowerCase().replace(" ", "_"),
+              plan_id: event.data.plan.name.toLowerCase().replaceAll(" ", "_"),
               payment_method: event.data.channel,
               amount: event.data.amount / 100,
               fees: event.data.fees / 100,
