@@ -31,6 +31,12 @@ export async function POST(req: Request) {
           .select("id")
           .eq("email_address", event.data.customer.email)
           .single();
+
+        if (userError) {
+          console.error("Error fetching user:", userError);
+          throw userError;
+        }
+
         console.log(userData);
 
         const { error: subscriptionError } = await supabase
@@ -65,6 +71,11 @@ export async function POST(req: Request) {
           .select("id")
           .eq("email_address", event.data.customer.email)
           .single();
+
+        if (userError) {
+          console.error("Error fetching user:", userError);
+          throw userError;
+        }
         console.log(userData);
 
         const { error } = await supabase.from("user_subscriptions").upsert(
@@ -94,6 +105,11 @@ export async function POST(req: Request) {
           .select("id")
           .eq("email_address", event.data.customer.email)
           .single();
+
+        if (userError) {
+          console.error("Error fetching user:", userError);
+          throw userError;
+        }
         console.log(userData);
 
         const { error } = await supabase.from("user_subscriptions").upsert(
@@ -123,6 +139,11 @@ export async function POST(req: Request) {
           .select("id")
           .eq("email_address", event.data.customer.email)
           .single();
+
+        if (userError) {
+          console.error("Error fetching user:", userError);
+          throw userError;
+        }
         console.log(userData);
 
         const { error } = await supabase.from("user_subscriptions").upsert(
@@ -154,6 +175,12 @@ export async function POST(req: Request) {
               .select("id")
               .eq("email_address", event.data.customer.email)
               .single();
+
+            if (userError) {
+              console.error("Error fetching user:", userError);
+              throw userError;
+            }
+
             if (!userError && userData) {
               userId = userData.id;
             }

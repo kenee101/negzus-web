@@ -299,7 +299,7 @@ const SubscriptionPlans = () => {
           onClick={() => {
             console.log("Test subscription");
             window.open(
-              `https://paystack.shop/pay/fo-iuxbkz0`,
+              `https://paystack.shop/pay/r11k2vee9l`,
               "_blank",
               "noopener,noreferrer"
             );
