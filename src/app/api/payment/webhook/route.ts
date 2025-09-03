@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { createClerkSupabaseClient } from "@/utils/supabase";
-import { auth } from "@clerk/nextjs/server";
+import { createSupabaseClient } from "@/utils/supabase";
 
 // Verify Paystack signature
 function verifySignature(reqBody: string, signature: string | undefined) {
@@ -13,9 +12,7 @@ function verifySignature(reqBody: string, signature: string | undefined) {
 }
 
 export async function POST(req: Request) {
-  const { getToken } = await auth();
-  const supabase = createClerkSupabaseClient(getToken);
-  console.log(getToken());
+  const supabase = createSupabaseClient();
 
   try {
     const rawBody = await req.text();
@@ -32,7 +29,7 @@ export async function POST(req: Request) {
         const { data: userData, error: userError } = await supabase
           .from("clerk_users")
           .select("id")
-          .eq("email", event.data.customer.email)
+          .eq("email_address", event.data.customer.email)
           .single();
         console.log(userData);
 
@@ -66,7 +63,7 @@ export async function POST(req: Request) {
         const { data: userData, error: userError } = await supabase
           .from("clerk_users")
           .select("id")
-          .eq("email", event.data.customer.email)
+          .eq("email_address", event.data.customer.email)
           .single();
         console.log(userData);
 
@@ -95,7 +92,7 @@ export async function POST(req: Request) {
         const { data: userData, error: userError } = await supabase
           .from("clerk_users")
           .select("id")
-          .eq("email", event.data.customer.email)
+          .eq("email_address", event.data.customer.email)
           .single();
         console.log(userData);
 
@@ -124,7 +121,7 @@ export async function POST(req: Request) {
         const { data: userData, error: userError } = await supabase
           .from("clerk_users")
           .select("id")
-          .eq("email", event.data.customer.email)
+          .eq("email_address", event.data.customer.email)
           .single();
         console.log(userData);
 
@@ -155,7 +152,7 @@ export async function POST(req: Request) {
             const { data: userData, error: userError } = await supabase
               .from("clerk_users")
               .select("id")
-              .eq("email", event.data.customer.email)
+              .eq("email_address", event.data.customer.email)
               .single();
             if (!userError && userData) {
               userId = userData.id;
