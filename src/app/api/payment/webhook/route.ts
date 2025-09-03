@@ -15,6 +15,7 @@ function verifySignature(reqBody: string, signature: string | undefined) {
 export async function POST(req: Request) {
   const { getToken } = await auth();
   const supabase = createClerkSupabaseClient(getToken);
+  console.log(getToken);
 
   try {
     const rawBody = await req.text();
@@ -28,8 +29,6 @@ export async function POST(req: Request) {
 
     switch (event.event) {
       case "subscription.create": {
-        // New subscription created
-        console.log("🔄 Subscription Created:", event.data.subscription_code);
         const { data, error } = await supabase
           .from("user_subscriptions")
           .upsert(
@@ -47,26 +46,23 @@ export async function POST(req: Request) {
             },
             { onConflict: "user_id" }
           );
+        console.log("🔄 Subscription Created:", event.data);
 
         if (error) {
-          return NextResponse.json(
-            { error: "Failed to update subscription." },
-            { status: 400 }
-          );
+          console.error("Error saving subscription:", error);
+          throw error;
         }
         break;
       }
 
       case "subscription.disable": {
-        // Subscription disabled
-        console.log("⏸️ Subscription Disabled:", event.data.subscription_code);
         const { data, error } = await supabase
           .from("user_subscriptions")
           .upsert(
             {
               user_id: event.data.metadata?.user_id,
               status: event.data.status,
-              disabled_at: new Date().toISOString(), // Track when it was disabled
+              disabled_at: new Date().toISOString(),
               subscription_end: event.data.next_payment_date
                 ? new Date(event.data.next_payment_date).toISOString()
                 : null,
@@ -75,36 +71,54 @@ export async function POST(req: Request) {
               onConflict: "user_id",
             }
           );
-
+        console.log("⏸️ Subscription Disabled:", event.data);
         if (error) {
-          return NextResponse.json(
-            { error: "Failed to update subscription." },
-            { status: 400 }
-          );
+          console.error("Error saving subscription:", error);
+          throw error;
         }
         break;
       }
 
       case "subscription.expiring_cards": {
-        // Subscription disabled
-        console.log(
-          "⏸️ Subscription with expiring cards:",
-          event.data.subscription_code
+        const { error } = await supabase.from("user_subscriptions").upsert(
+          {
+            user_id: event.data.metadata?.user_id,
+            status: event.data.status,
+            subscription_end: event.data.next_payment_date
+              ? new Date(event.data.next_payment_date).toISOString()
+              : null,
+            card_expiry_date: event.data.expiry_date,
+          },
+          {
+            onConflict: "user_id",
+          }
         );
+        console.log("⏸️ Subscription with expiring cards:", event.data);
+        if (error) {
+          console.error("Error saving subscription:", error);
+          throw error;
+        }
         break;
       }
 
       case "subscription.not_renew": {
-        // Subscription will not renew
-        console.log(
-          "🛑 Subscription Not Renewing:",
-          event.data.subscription_code
+        const { error } = await supabase.from("user_subscriptions").upsert(
+          {
+            user_id: event.data.metadata?.user_id,
+            status: event.data.status,
+            subscription_end: event.data.next_payment_date
+              ? new Date(event.data.next_payment_date).toISOString()
+              : null,
+          },
+          {
+            onConflict: "user_id",
+          }
         );
-        // Example: Update subscription status
-        // await db.user.update({
-        //   where: { subscriptionId: event.data.subscription_code },
-        //   data: { willRenew: false },
-        // });
+        console.log("🛑 Subscription Not Renewing:", event.data);
+        if (error) {
+          console.error("Error saving subscription:", error);
+          throw error;
+        }
         break;
       }
 
@@ -145,10 +159,6 @@ export async function POST(req: Request) {
           );
           console.log("✅ Transaction Successful:", event.data.reference);
           console.log("🔥 Transaction:", event.data);
-          if (error) {
-            console.error("Error saving transaction:", error);
-            throw error;
-          }
         } catch (error) {
           console.error("Error saving transaction:", error);
           throw error;

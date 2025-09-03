@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Spinner } from "@heroui/react";
 import { useUser } from "@clerk/nextjs";
@@ -13,7 +12,7 @@ export default function SubscriptionLink({
   startContent,
   className = "",
 }) {
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const { user } = useUser();
 
   const getSubscriptionLink = () => {
@@ -35,8 +34,6 @@ export default function SubscriptionLink({
 
     return links[planType]?.[billingType];
   };
-
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleFreePlan = async () => {
     try {

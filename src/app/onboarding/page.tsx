@@ -18,7 +18,7 @@ import {
   today,
   DateValue,
 } from "@internationalized/date";
-// import Spinner from "@/components/Spinner";
+import { Typewriter } from "react-simple-typewriter";
 import { ArrowRight } from "lucide-react";
 
 interface FormErrors {
@@ -101,46 +101,6 @@ export default function OnboardingComponent() {
       return { general: "Validation failed" };
     }
   };
-
-  // const handleSubmit = async (formData: FormData) => {
-  //   setErrors({});
-  //   setIsSubmitting(true);
-
-  //   try {
-  //     // Client-side validation
-  //     const validationErrors = validateForm(formData);
-
-  //     if (Object.keys(validationErrors).length > 0) {
-  //       setErrors(validationErrors);
-  //       setIsSubmitting(false);
-  //       // Scroll to first error
-  //       const firstErrorField = Object.keys(validationErrors)[0];
-  //       const element = document.getElementById(firstErrorField);
-  //       if (element) {
-  //         element.scrollIntoView({ behavior: "smooth", block: "center" });
-  //         element.focus();
-  //       }
-  //       return;
-  //     }
-
-  //     const res = await completeOnboarding(formData);
-  //     // console.log(res);
-
-  //     if (res?.message) {
-  //       await user?.reload();
-  //       router.push("/dashboard");
-  //     }
-
-  //     if (res?.error) {
-  //       setErrors({ general: res.error });
-  //     }
-  //   } catch (err) {
-  //     console.error("Onboarding error:", err);
-  //     setErrors({ general: "An unexpected error occurred. Please try again." });
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -799,15 +759,20 @@ export default function OnboardingComponent() {
       <div className="hidden flex-1 md:p-10 bg-gray-950 min-h-screen md:flex flex-col items-center justify-center relative overflow-hidden px-8 lg:px-16">
         <div className="relative z-10 text-center max-w-4xl">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-8 leading-tight">
-            <span className="bg-gradient-to-r from-white via-emerald-100 to-cyan-100 bg-clip-text text-transparent">
-              Never Run Out of
-            </span>
-            <br />
-            <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
-              Fuel Again
+            <span className="bg-gradient-to-r from-white via-emerald-400 to-purple-800 bg-clip-text text-transparent">
+              <Typewriter
+                words={["Never Run Out of Fuel Again"]}
+                loop={0}
+                cursor={true}
+                cursorColor="white"
+                cursorStyle="●"
+                cursorBlinking={true}
+                typeSpeed={100}
+                deleteSpeed={100}
+                delaySpeed={1000}
+              />
             </span>
           </h1>
-
           <p className="text-lg lg:text-lg text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
             Find the nearest gas stations, compare prices, check availability,
             and pay seamlessly with QR codes. Your fuel journey just got
