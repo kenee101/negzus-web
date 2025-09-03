@@ -1,5 +1,13 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
+import { ipAddress } from "@vercel/functions";
+
+const ALLOWED_IPS = [
+  "127.0.0.1", // Localhost
+  "::1", // IPv6 localhost
+  "192.168.1.6",
+  "10.0.2.2", // Common Android emulator IP
+];
 
 const isPublicRoute = createRouteMatcher([
   "/sign-in(.*)",
@@ -18,6 +26,15 @@ const isSignInSignUpRoute = createRouteMatcher([
 const isOnboardingRoute = createRouteMatcher(["/onboarding"]);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
+  const ip = ipAddress(req) || req.headers.get("x-forwarded-for") || "";
+
+  if (req.nextUrl.pathname.startsWith("/api/")) {
+    if (ALLOWED_IPS.includes(ip)) {
+      return NextResponse.next();
+    }
+    return new NextResponse("Access denied", { status: 403 });
+  }
+
   const { userId, sessionClaims, redirectToSignIn } = await auth();
   // If the user is logged in and the route is sign-in or sign-up, redirect to the dashboard.
   if (userId && isSignInSignUpRoute(req))
@@ -31,7 +48,6 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
     return redirectToSignIn({ returnBackUrl: req.url });
   }
   // Catch users who do not have `onboardingComplete: true` in their publicMetadata
-  // Redirect them to the /onboarding route to complete onboarding
   if (userId && !sessionClaims?.metadata?.onboardingComplete) {
     const onboardingUrl = new URL("/onboarding", req.url);
     return NextResponse.redirect(onboardingUrl);
