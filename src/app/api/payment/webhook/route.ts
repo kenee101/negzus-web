@@ -26,6 +26,7 @@ export async function POST(req: Request) {
 
     switch (event.event) {
       case "subscription.create": {
+        console.log("🔄 Event Data:", event.data);
         const { data: userData, error: userError } = await supabase
           .from("clerk_users")
           .select("id")
@@ -56,7 +57,6 @@ export async function POST(req: Request) {
             },
             { onConflict: "user_id" }
           );
-        console.log("🔄 Subscription Created:", event.data);
 
         if (subscriptionError) {
           console.error("Error saving subscription:", subscriptionError);
@@ -191,6 +191,7 @@ export async function POST(req: Request) {
               user_id: userId,
               paystack_reference: event.data.reference,
               paystack_transaction_id: event.data.id,
+              plan_id: event.data.plan.name.toLowerCase().replace(" ", "_"),
               payment_method: event.data.channel,
               amount: event.data.amount / 100,
               fees: event.data.fees / 100,
@@ -310,3 +311,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
+
+// (id = (auth.jwt() ->> 'sub'::text))
+
+// using (
+//   (auth.jwt() IS NULL) OR  -- Allow webhook (no auth)
+//   (user_id = (auth.jwt() ->> 'sub'::text))  -- Normal auth
+// );
