@@ -3,10 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { ipAddress } from "@vercel/functions";
 
 const ALLOWED_IPS = [
-  "127.0.0.1", // Localhost
-  "::1", // IPv6 localhost
-  "192.168.1.6",
-  "10.0.2.2", // Common Android emulator IP
+  "::ffff:192.168.1.6",
+  // "10.0.2.2", // Common Android emulator IP
 ];
 
 const isPublicRoute = createRouteMatcher([
@@ -27,6 +25,7 @@ const isOnboardingRoute = createRouteMatcher(["/onboarding"]);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
   const ip = ipAddress(req) || req.headers.get("x-forwarded-for") || "";
+  console.log(ip);
 
   if (req.nextUrl.pathname.startsWith("/api/")) {
     if (ALLOWED_IPS.includes(ip)) {

@@ -118,7 +118,7 @@ export const completeOnboarding = async (formData: FormData) => {
 
     // Update Clerk user metadata
     await client.users.updateUser(userId, {
-      publicMetadata: {
+      unsafeMetadata: {
         onboardingComplete: true,
         phoneNumber: validatedData.phoneNumber,
         dateOfBirth: validatedData.dateOfBirth,
