@@ -1,4 +1,8 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import {
+  clerkMiddleware,
+  createRouteMatcher,
+  ClerkMiddlewareAuth,
+} from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@clerk/backend";
 // import { ipAddress } from "@vercel/functions";
@@ -24,7 +28,10 @@ const isSignInSignUpRoute = createRouteMatcher([
 
 const isOnboardingRoute = createRouteMatcher(["/onboarding"]);
 
-async function handleAPIAuthentication(req: NextRequest, auth: any) {
+async function handleAPIAuthentication(
+  req: NextRequest,
+  auth: ClerkMiddlewareAuth
+) {
   // const ip = ipAddress(req) || req.headers.get("x-forwarded-for") || "";
   // console.log(ip);
 
@@ -69,39 +76,41 @@ async function handleAPIAuthentication(req: NextRequest, auth: any) {
   return new NextResponse("Unauthorized", { status: 401 });
 }
 
-export default clerkMiddleware(async (auth, req: NextRequest) => {
-  // Handle API routes
-  if (req.nextUrl.pathname.startsWith("/api/")) {
-    return await handleAPIAuthentication(req, auth);
-  }
+export default clerkMiddleware(
+  async (auth: ClerkMiddlewareAuth, req: NextRequest) => {
+    // Handle API routes
+    if (req.nextUrl.pathname.startsWith("/api/")) {
+      return await handleAPIAuthentication(req, auth);
+    }
 
-  const { userId, sessionClaims, redirectToSignIn } = await auth();
-  // If the user is logged in and the route is sign-in or sign-up, redirect to the dashboard.
-  if (userId && isSignInSignUpRoute(req))
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  // For users visiting /onboarding, don't try to redirect
-  if (userId && isOnboardingRoute(req)) {
-    return NextResponse.next();
+    const { userId, sessionClaims, redirectToSignIn } = await auth();
+    // If the user is logged in and the route is sign-in or sign-up, redirect to the dashboard.
+    if (userId && isSignInSignUpRoute(req))
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    // For users visiting /onboarding, don't try to redirect
+    if (userId && isOnboardingRoute(req)) {
+      return NextResponse.next();
+    }
+    // If the user isn't signed in and the route is private, redirect to sign-in
+    if (!userId && !isPublicRoute(req)) {
+      return redirectToSignIn({ returnBackUrl: req.url });
+    }
+    // Catch users who do not have `onboardingComplete: true` in their publicMetadata
+    if (userId && !sessionClaims?.metadata?.onboardingComplete) {
+      const onboardingUrl = new URL("/onboarding", req.url);
+      return NextResponse.redirect(onboardingUrl);
+    }
+    // If the user is logged in and the route is protected, let them view.
+    if (userId && !isPublicRoute(req)) return NextResponse.next();
+    // If the user is logged in and the route is protected and the onboarding is false, redirect to onboarding.
+    if (
+      userId &&
+      !isPublicRoute(req) &&
+      !sessionClaims?.metadata?.onboardingComplete
+    )
+      return NextResponse.redirect(new URL("/onboarding", req.url));
   }
-  // If the user isn't signed in and the route is private, redirect to sign-in
-  if (!userId && !isPublicRoute(req)) {
-    return redirectToSignIn({ returnBackUrl: req.url });
-  }
-  // Catch users who do not have `onboardingComplete: true` in their publicMetadata
-  if (userId && !sessionClaims?.metadata?.onboardingComplete) {
-    const onboardingUrl = new URL("/onboarding", req.url);
-    return NextResponse.redirect(onboardingUrl);
-  }
-  // If the user is logged in and the route is protected, let them view.
-  if (userId && !isPublicRoute(req)) return NextResponse.next();
-  // If the user is logged in and the route is protected and the onboarding is false, redirect to onboarding.
-  if (
-    userId &&
-    !isPublicRoute(req) &&
-    !sessionClaims?.metadata?.onboardingComplete
-  )
-    return NextResponse.redirect(new URL("/onboarding", req.url));
-});
+);
 
 export const config = {
   matcher: [
