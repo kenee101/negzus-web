@@ -98,8 +98,8 @@ export const completeOnboarding = async (formData: FormData) => {
         last_sign_in_at: user.lastSignInAt
           ? new Date(user.lastSignInAt).toISOString()
           : null,
-        banned: user.banned,
-        locked: user.locked,
+        // banned: user.banned,
+        // locked: user.locked,
         created_at: new Date(user.createdAt).toISOString(),
         updated_at: new Date(user.updatedAt).toISOString(),
         last_active_at: user.lastActiveAt

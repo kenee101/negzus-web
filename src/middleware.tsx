@@ -1,11 +1,12 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import { ipAddress } from "@vercel/functions";
+import { verifyToken } from "@clerk/backend";
+// import { ipAddress } from "@vercel/functions";
 
-const ALLOWED_IPS = [
-  "::ffff:192.168.1.6",
-  // "10.0.2.2", // Common Android emulator IP
-];
+// const ALLOWED_IPS = [
+//   "::ffff:192.168.1.6",
+//   // "10.0.2.2", // Common Android emulator IP
+// ];
 
 const isPublicRoute = createRouteMatcher([
   "/sign-in(.*)",
@@ -23,15 +24,55 @@ const isSignInSignUpRoute = createRouteMatcher([
 
 const isOnboardingRoute = createRouteMatcher(["/onboarding"]);
 
-export default clerkMiddleware(async (auth, req: NextRequest) => {
-  const ip = ipAddress(req) || req.headers.get("x-forwarded-for") || "";
-  console.log(ip);
+async function handleAPIAuthentication(req: NextRequest, auth: any) {
+  // const ip = ipAddress(req) || req.headers.get("x-forwarded-for") || "";
+  // console.log(ip);
 
-  if (req.nextUrl.pathname.startsWith("/api/")) {
-    if (ALLOWED_IPS.includes(ip)) {
-      return NextResponse.next();
+  // if (req.nextUrl.pathname.startsWith("/api/")) {
+  //   if (ALLOWED_IPS.includes(ip)) {
+  //     return NextResponse.next();
+  //   }
+  //   return new NextResponse("Access denied", { status: 403 });
+  // }
+  const authHeader = req.headers.get("authorization");
+
+  // Mobile app request with Bearer token
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.split(" ")[1];
+    try {
+      const verifiedToken = await verifyToken(token, {
+        jwtKey: process.env.CLERK_JWT_KEY,
+      });
+
+      if (verifiedToken) {
+        // Add user info to headers for API routes to use
+        const response = NextResponse.next();
+        response.headers.set("x-user-id", verifiedToken.sub);
+        response.headers.set("x-auth-type", "bearer");
+        return response;
+      }
+    } catch (error) {
+      console.error("Token verification failed:", error);
+      return new NextResponse("Invalid token", { status: 401 });
     }
-    return new NextResponse("Access denied", { status: 403 });
+  }
+
+  // Web app request with Clerk session
+  const { userId } = await auth();
+  if (userId) {
+    const response = NextResponse.next();
+    response.headers.set("x-user-id", userId);
+    response.headers.set("x-auth-type", "session");
+    return response;
+  }
+
+  return new NextResponse("Unauthorized", { status: 401 });
+}
+
+export default clerkMiddleware(async (auth, req: NextRequest) => {
+  // Handle API routes
+  if (req.nextUrl.pathname.startsWith("/api/")) {
+    return await handleAPIAuthentication(req, auth);
   }
 
   const { userId, sessionClaims, redirectToSignIn } = await auth();
